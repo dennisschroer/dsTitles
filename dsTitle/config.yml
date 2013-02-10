@@ -5,8 +5,13 @@
 # (but replace the '§' with a '&')
 #
 general:
+  # Should the plugin set the chatformat to the one specified in this config?
   overwrite_format: false
+  # The charformat used when overwrite_format is true
+  # %1$s will be replaced with the playername, %2$s with the message and
+  # {title} with the title
   chat_format: '<{title}%1$s> %2$s'
+  # Should the plugin show all unavailable titles when a player does /title list ?
   show_unavailable_titles: true
 messages:
   error_no_player: '&8[&eTitles&8] &cOnly players can use this command'
@@ -16,5 +21,6 @@ messages:
   title_cleared: '&8[&eTitles&8] &eTitle cleared!'
   unavailable_header: '&e== &cUnavailable &etitles =='
   available_header: '&e== &aAvailable &etitles =='
+  # Make up of one title in the list showed when a player does /title list
   title_listitem: '{name} ({preview}) {description}'
   reloaded: '&8[&eTitles&8] &eConfig reloaded'
