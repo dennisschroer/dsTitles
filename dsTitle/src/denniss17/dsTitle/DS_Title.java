@@ -119,10 +119,13 @@ public class DS_Title extends JavaPlugin implements Listener{
 	 */
 	public SortedSet<Title> getTitles(){
 		SortedSet<Title> result = new TreeSet<Title>();
-		Set<String> titles = titleConfig.getConfigurationSection("titles").getKeys(false);
-		for(String name: titles){
-			Title title = getTitle(name);
-			if(title!=null) result.add(title);
+		if(titleConfig.contains("titles")){
+			Set<String> titles = titleConfig.getConfigurationSection("titles").getKeys(false);
+			
+			for(String name: titles){
+				Title title = getTitle(name);
+				if(title!=null) result.add(title);
+			}
 		}
 		return result;
 	}

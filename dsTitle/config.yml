@@ -1,14 +1,20 @@
-# 
+#
+# Config for dsTitle plugin
+# For the different text colors and styles, go to
+# http://www.minecraftwiki.net/wiki/Formatting_codes
+# (but replace the '§' with a '&')
+#
 general:
   overwrite_format: false
   chat_format: '<{title}%1$s> %2$s'
   show_unavailable_titles: true
 messages:
-  error_no_player: '&cOnly players can use this command'
-  error_no_permission: '&cYou don`t have enough permissions for this command'
-  error_title_not_found: '&cThat title is not found!'
-  title_set: '&eTitle set!'
-  title_cleared: '&eTitle cleared!'
+  error_no_player: '&8[&eTitles&8] &cOnly players can use this command'
+  error_no_permission: '&8[&eTitles&8] &cYou don`t have enough permissions for this command'
+  error_title_not_found: '&8[&eTitles&8] &cThat title is not found!'
+  title_set: '&8[&eTitles&8] &eTitle set!'
+  title_cleared: '&8[&eTitles&8] &eTitle cleared!'
   unavailable_header: '&e== &cUnavailable &etitles =='
   available_header: '&e== &aAvailable &etitles =='
-  reloaded: '&eConfig reloaded'
+  title_listitem: '{name} ({preview}) {description}'
+  reloaded: '&8[&eTitles&8] &eConfig reloaded'

@@ -19,7 +19,7 @@ public class PlayerListener implements Listener {
 		Player player = event.getPlayer();
 		String chatFormat;
 		if(plugin.getConfig().getBoolean("general.overwrite_format")){
-			chatFormat = plugin.getConfig().getString("general.chatformat");
+			chatFormat = plugin.getConfig().getString("general.chat_format");
 		}else{
 			chatFormat = event.getFormat();
 			if(!chatFormat.contains("{title}")){
@@ -28,7 +28,7 @@ public class PlayerListener implements Listener {
 		}
 		
 		if(plugin.getTitleOfPlayer(player.getName())!=null){
-			chatFormat = chatFormat.replace("{title}", plugin.getTitleOfPlayer(player.getName()).title);
+			chatFormat = chatFormat.replace("{title}", plugin.getTitleOfPlayer(player.getName()).title + "&r");
 		}else{
 			chatFormat = chatFormat.replace("{title}", "");
 		}

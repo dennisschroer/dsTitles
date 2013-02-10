@@ -1,11 +1,12 @@
 #
 # This is the config file where you put the title
 # These have to be in the following format:
-# <name>:
-#   title: <title>
-#   permission: <permission needed>
-#   description: <description>
+# titles:
+#   <name>:
+#     title: <title>
+#     permission: <permission needed>
+#     description: <description>
 #
-# permission and description are optional.
+# Permission and description are optional.
 #
 titles:
