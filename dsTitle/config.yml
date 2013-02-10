@@ -1,0 +1,14 @@
+# 
+general:
+  overwrite_format: false
+  chat_format: '<{title}%1$s> %2$s'
+  show_unavailable_titles: true
+messages:
+  error_no_player: '&cOnly players can use this command'
+  error_no_permission: '&cYou don`t have enough permissions for this command'
+  error_title_not_found: '&cThat title is not found!'
+  title_set: '&eTitle set!'
+  title_cleared: '&eTitle cleared!'
+  unavailable_header: '&e== &cUnavailable &etitles =='
+  available_header: '&e== &aAvailable &etitles =='
+  reloaded: '&eConfig reloaded'

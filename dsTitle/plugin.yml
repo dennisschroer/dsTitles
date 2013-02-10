@@ -1,0 +1,19 @@
+name: dsTitle
+main: denniss17.dsTitle.DS_Title
+version: 1.0.0
+author: Denniss17
+description: With this plugin you can create and set titles.
+commands:
+   title:
+      description: Manage your title
+      usage: /<command> [list/set/clear]
+      permission: ds_title.title
+permissions:
+   ds_title.admin:
+      description: Permission for all commands.
+      default: op
+      children:
+         ds_title.player: true
+   ds_title.player:
+      description: Gives access to all the player commands
+      default: true
