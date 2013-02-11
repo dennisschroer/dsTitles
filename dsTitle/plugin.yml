@@ -17,3 +17,5 @@ permissions:
    ds_title.player:
       description: Gives access to all the player commands
       default: true
+      children:
+        ds_title.title: true
