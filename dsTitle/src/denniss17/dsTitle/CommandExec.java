@@ -46,7 +46,7 @@ public class CommandExec implements CommandExecutor{
 							.replace("{preview}", title.title + "&r")
 							.replace("{description}", description);
 							
-					if(title.permission==null || sender.hasPermission(title.permission)){
+					if(title.permission==null || plugin.getPermissionManager().hasPermission(sender, title.permission)){
 						available.add(listitem);
 					}else{
 						unavailable.add(listitem);
@@ -77,7 +77,7 @@ public class CommandExec implements CommandExecutor{
 				
 				if(plugin.titleExists(args[1])){
 					Title title = plugin.getTitle(args[1]);
-					if(title.permission==null || player.hasPermission(title.permission)){
+					if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
 						plugin.setTitleOfPlayer(player.getName(), args[1]);
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_set"));
 					}else{
@@ -104,7 +104,7 @@ public class CommandExec implements CommandExecutor{
 				
 				return true;
 			}else if(args[0].equalsIgnoreCase("reload")){
-				if(sender.hasPermission("ds_title.admin")){
+				if(plugin.getPermissionManager().hasPermission(sender, "ds_title.admin")){
 					plugin.reloadConfiguration();
 					plugin.sendMessage(sender, plugin.getConfig().getString("messages.reloaded"));
 					return true;

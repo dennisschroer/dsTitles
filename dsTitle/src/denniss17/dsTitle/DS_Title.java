@@ -8,12 +8,15 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
+import net.milkbowl.vault.permission.Permission;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -22,6 +25,7 @@ public class DS_Title extends JavaPlugin implements Listener{
 	
 	private FileConfiguration titleConfig = null;
 	private File titleConfigFile = null;
+	private PermissionManager permissionManager;
 	
 	class Title implements Comparable<Title>{
 		public String name;
@@ -53,9 +57,12 @@ public class DS_Title extends JavaPlugin implements Listener{
 		CommandExec commandExec = new CommandExec(this);
 		this.getCommand("title").setExecutor(commandExec);	
 		
+		this.permissionManager = new PermissionManager(this);
+		
 		// Load the config values
 		reloadConfiguration();	
 	}
+	
 
 	public void reloadConfiguration(){
 		this.reloadConfig();
@@ -68,6 +75,10 @@ public class DS_Title extends JavaPlugin implements Listener{
 	        this.saveConfig();
 		}
 		
+	}
+	
+	public PermissionManager getPermissionManager(){
+		return this.permissionManager;
 	}
 	
 	public Title getTitleOfPlayer(String playername){
