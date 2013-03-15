@@ -6,7 +6,7 @@ description: With this plugin you can create and set titles.
 commands:
    title:
       description: Manage your title
-      usage: /<command> [list/set/clear/reload]
+      usage: /<command>
       permission: ds_title.title
 permissions:
    ds_title.admin:

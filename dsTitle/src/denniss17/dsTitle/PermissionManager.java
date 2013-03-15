@@ -46,6 +46,10 @@ public class PermissionManager {
 		return this.vaultEnabled;
 	}
 	
+	public Permission getVaultPermissionInstance(){
+		return permissions;
+	}
+	
 	/** Load Vault */
 	private boolean setupPermissions() {
 		RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer()
