@@ -29,7 +29,16 @@ public class CommandExec implements CommandExecutor{
 	
 	private boolean cmdTitle(CommandSender sender, Command cmd, String commandlabel, String[] args) {
 		if(args.length==0){
-			return false;
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_header"));
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_list"));
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_set"));
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_clear"));
+			if(plugin.getPermissionManager().hasPermission(sender, "ds_title.admin")){
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_grant"));
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_ungrant"));
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_reload"));
+			}
+			return true;
 		}else{
 			if(args[0].equalsIgnoreCase("list")){
 				return cmdTitleList(sender, cmd, commandlabel, args);
@@ -44,16 +53,7 @@ public class CommandExec implements CommandExecutor{
 			}else if(args[0].equalsIgnoreCase("ungrant")){
 				return cmdTitleUngrant(sender, cmd, commandlabel, args);
 			}else{
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_header"));
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_list"));
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_set"));
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_clear"));
-				if(plugin.getPermissionManager().hasPermission(sender, "dstitle.admin")){
-					plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_grant"));
-					plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_ungrant"));
-					plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_reload"));
-				}
-				return true;
+				return false;
 			}
 		}
 	}

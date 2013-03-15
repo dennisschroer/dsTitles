@@ -11,9 +11,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class PermissionManager {
 	private JavaPlugin plugin;
 	private boolean vaultEnabled;
-	private Permission permissions;
+	private Permission permissions = null;
 	
 	public PermissionManager(JavaPlugin plugin){
+		this.plugin = plugin;
 		this.vaultEnabled = setupPermissions();
 	}
 	
@@ -52,12 +53,17 @@ public class PermissionManager {
 	
 	/** Load Vault */
 	private boolean setupPermissions() {
-		RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer()
-				.getServicesManager().getRegistration(
-						net.milkbowl.vault.permission.Permission.class);
-		if (permissionProvider != null) {
-			permissions = permissionProvider.getProvider();
+		if(plugin.getServer().getPluginManager().getPlugin("Vault")==null){
+			plugin.getLogger().warning("Vault not found. /title grant and /title ungrant won't work!");
+			this.vaultEnabled = false;
+			return false;
+		}else{
+			RegisteredServiceProvider<Permission> permissionProvider = 
+					plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+			if (permissionProvider != null) {
+				permissions = permissionProvider.getProvider();
+			}		
+			return (permissions != null);
 		}
-		return (permissions != null);
 	}
 }

@@ -22,8 +22,8 @@ messages:
   error_title_not_found: '&8[&eTitles&8] &cThat title is not found!'
   title_set: '&8[&eTitles&8] &eTitle set!'
   title_cleared: '&8[&eTitles&8] &eTitle cleared!'
-  title_granted: '&8[&eTitles&8] &eTitle {title} granted to {name}.'
-  title_ungranted: '&8[&eTitles&8] &eTitle {title} ungranted from {name}.'
+  title_granted: '&8[&eTitles&8] &eTitle &f{title} &egranted to &f{name}&e.'
+  title_ungranted: '&8[&eTitles&8] &eTitle &f{title} &eungranted from &f{name}&e.'
   reloaded: '&8[&eTitles&8] &eConfig reloaded'
   # Header showed above unavailable titles, when a player does /title list
   unavailable_header: '&e== &cUnavailable &etitles =='
