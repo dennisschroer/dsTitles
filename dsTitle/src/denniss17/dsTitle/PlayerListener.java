@@ -6,6 +6,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import denniss17.dsTitle.DS_Title.Title;
+
 public class PlayerListener implements Listener {
 
 	private DS_Title plugin;
@@ -22,15 +24,24 @@ public class PlayerListener implements Listener {
 			chatFormat = plugin.getConfig().getString("general.chat_format");
 		}else{
 			chatFormat = event.getFormat();
-			if(!chatFormat.contains("{title}")){
-				chatFormat = chatFormat.replace("%1$s", "{title}%1$s");
-			}
+			if(!chatFormat.contains("{titlesuffix}")) chatFormat = chatFormat.replace("%1$s", "%1$s{titlesuffix}");
+			if(!chatFormat.contains("{titleprefix}")) chatFormat = chatFormat.replace("%1$s", "{titleprefix}%1$s");
 		}
-		
-		if(plugin.getTitleOfPlayer(player.getName())!=null){
-			chatFormat = chatFormat.replace("{title}", plugin.getTitleOfPlayer(player.getName()).title + "&r");
+		Title title = plugin.getTitleOfPlayer(player.getName());
+		if(title!=null){
+			if(title.prefix != null ){
+				chatFormat = chatFormat.replace("{titleprefix}", title.prefix + "&r");
+			}else{
+				chatFormat = chatFormat.replace("{titleprefix}", "");
+			}
+			if(title.suffix != null ){
+				chatFormat = chatFormat.replace("{titlesuffix}", title.suffix + "&r");
+			}else{
+				chatFormat = chatFormat.replace("{titlesuffix}", "");
+			}
 		}else{
-			chatFormat = chatFormat.replace("{title}", "");
+			chatFormat = chatFormat.replace("{titlesuffix}", "");
+			chatFormat = chatFormat.replace("{titleprefix}", "");
 		}
 		
 		chatFormat = ChatStyler.setTotalStyle(chatFormat);

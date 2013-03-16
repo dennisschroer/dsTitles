@@ -63,14 +63,17 @@ public class CommandExec implements CommandExecutor{
 		List<String> available = new ArrayList<String>();
 		List<String> unavailable = new ArrayList<String>();
 		
-		String description;
-		String listitem;
+		String description, preview, listitem;
 		String listitemMask = plugin.getConfig().getString("messages.title_listitem");
 		for(Title title: titles){
 			description = title.description==null ? "-" : title.description;
+			preview = title.prefix==null ? "" : title.prefix;
+			preview += title.prefix!=null && title.suffix!=null ? "&r&8/&r" : "";
+			preview += title.suffix==null ? "" : title.suffix;
+			
 			listitem = listitemMask
 					.replace("{name}", title.name)
-					.replace("{preview}", title.title + "&r")
+					.replace("{preview}", preview + "&r")
 					.replace("{description}", description);
 					
 			if(title.permission==null || plugin.getPermissionManager().hasPermission(sender, title.permission)){

@@ -26,13 +26,18 @@ public class DS_Title extends JavaPlugin implements Listener{
 	
 	class Title implements Comparable<Title>{
 		public String name;
-		public String title;
+		public String prefix;
+		public String suffix;
 		public String permission;
 		public String description;
+		public int type;
+		public static final int PREFIX = 0;
+		public static final int SUFFIX = 1;
 		
-		public Title(String name, String title, String permission, String description){
+		public Title(String name, String prefix, String suffix, String permission, String description){
 			this.name = name;
-			this.title = title;
+			this.prefix = prefix;
+			this.suffix = suffix;
 			this.permission = permission;
 			this.description = description;
 		}
@@ -67,10 +72,10 @@ public class DS_Title extends JavaPlugin implements Listener{
 		this.saveTitleConfig();
 		
 		// Save config if not existing
-		if(!(new File(this.getDataFolder(), "config.yml").exists())){
+		//if(!(new File(this.getDataFolder(), "config.yml").exists())){
 			this.getConfig().options().copyDefaults(true);
 	        this.saveConfig();
-		}
+		//}
 		
 	}
 	
@@ -107,10 +112,12 @@ public class DS_Title extends JavaPlugin implements Listener{
 			return null;
 		}
 		ConfigurationSection titleSection = titleConfig.getConfigurationSection("titles." + name);
-		if(titleSection!=null && titleSection.contains("title")){
+		if(titleSection!=null){
 			String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
 			String description = titleSection.contains("description") ? titleSection.getString("description") : null;
-			return new Title(name, titleSection.getString("title"), permission, description);
+			String prefix = titleSection.contains("prefix") ? titleSection.getString("prefix") : null;
+			String suffix = titleSection.contains("suffix") ? titleSection.getString("suffix") : null;
+			return new Title(name, prefix, suffix, permission, description);
 		}else{
 			this.getLogger().warning("Title '" + name + "' not good configured and can't be used!");
 			return null;

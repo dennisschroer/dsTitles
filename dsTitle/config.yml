@@ -11,7 +11,7 @@ general:
   # The charformat used when overwrite_format is true
   # %1$s will be replaced with the playername, %2$s with the message and
   # {title} with the title
-  chat_format: '<{title}%1$s> %2$s'
+  chat_format: '<{titleprefix}%1$s{titlesuffix}> %2$s'
   # Should the plugin show all unavailable titles when a player does /title list ?
   show_unavailable_titles: true
 messages:
@@ -26,15 +26,16 @@ messages:
   title_ungranted: '&8[&eTitles&8] &eTitle &f{title} &eungranted from &f{name}&e.'
   reloaded: '&8[&eTitles&8] &eConfig reloaded'
   # Header showed above unavailable titles, when a player does /title list
-  unavailable_header: '&e== &cUnavailable &etitles =='
+  unavailable_header: '&8~~=={  &cUnavailable &etitles &8}==~~'
   # Header showed above available titles, when a player does /title list
-  available_header: '&e== &aAvailable &etitles =='
+  available_header: '&8~~=={  &aAvailable &etitles &8}==~~'
   # Make up of one title in the list showed when a player does /title list
   title_listitem: '{name} ({preview}) {description}'
-  menu_header: '&8~~=={ &edsTitles help &8}==~~'
+  # The help menu (if you just use /title)
+  menu_header: '&8~~=={ &e&ldsTitles help &r&8}==~~'
   menu_list: ' &e/title list &fList available titles'
   menu_set: ' &e/title set <title> &fSet your title'
   menu_clear: ' &e/title clear &fClear your title'
   menu_grant: ' &e/title grant <player> <title> &fGrant a title to a player'
-  menu_ungrant: ' &e/title ungrant <player> <title> &fUnrant a title from a player'
+  menu_ungrant: ' &e/title ungrant <player> <title> &fUngrant a title from a player'
   menu_reload: ' &e/title reload &fReload the config'

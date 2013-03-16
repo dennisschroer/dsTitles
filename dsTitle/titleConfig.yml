@@ -3,7 +3,8 @@
 # These have to be in the following format:
 # titles:
 #   <name>:
-#     title: <title>
+#     prefix: <title>
+#     suffix: <title>
 #     permission: <permission needed>
 #     description: <description>
 #
