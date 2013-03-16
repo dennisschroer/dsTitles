@@ -1,6 +1,6 @@
 name: dsTitle
 main: denniss17.dsTitle.DS_Title
-version: 1.0.0
+version: 1.1.0
 author: Denniss17
 description: With this plugin you can create and set titles.
 softdepend: [Vault]
