@@ -4,6 +4,7 @@
 # http://www.minecraftwiki.net/wiki/Formatting_codes
 # (but replace the '§' with a '&')
 # Be aware to use spaces, not tabs.
+# For more info, see https://github.com/denniss17/dsTitles/blob/master/dsTitle/config.yml
 #
 general:
   # Should the plugin set the chatformat to the one specified in this config?
@@ -29,7 +30,7 @@ messages:
   title_granted: '&8[&eTitles&8] &eTitle &f{title} &egranted to &f{name}&e.'
   title_ungranted: '&8[&eTitles&8] &eTitle &f{title} &eungranted from &f{name}&e.'
   reloaded: '&8[&eTitles&8] &eConfig reloaded'
-  update_notification: '&8[&eTitles&8] &eThere is a new version ({version}) available. Download it here: {website}'
+  update_notification: '&8[&eTitles&8] &eThere is a new version (&f{version}&e, current: &f{current}&e) available. Download it here: {website}'
   # Header showed above unavailable titles, when a player does /title list
   unavailable_header: '&8~~=={  &cUnavailable &etitles &8}==~~'
   # Header showed above available titles, when a player does /title list

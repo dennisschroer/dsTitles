@@ -17,6 +17,10 @@ public class VersionChecker implements Runnable{
 		VersionChecker.plugin = plugin;
 	}
 	
+	/**
+	 * Returns the latest version for this plugin, or null if unknown
+	 * @return the latest version or null
+	 */
 	public String getLatestVersion(){
 		return this.latestVersion;
 	}
@@ -24,27 +28,33 @@ public class VersionChecker implements Runnable{
 	@Override
 	public void run() {
 		URL url;
+		plugin.getLogger().info("Checking for updates...");
 		try {
+			// Read version via http
 			url = new URL("http://dennisschroer.nl/bukkitplugins/versioncheck/dsTitle/" +
-					plugin.getServer().getVersion().replace(" ", "") + '/' +
-					plugin.getDescription().getVersion()					
+					plugin.getServer().getBukkitVersion().replace(" ", "") + '/' +
+					plugin.getDescription().getVersion()
 					);
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String response = in.readLine();
 			
+			// Handle response
 			if(response.equals("OK")){
 				latestVersion = plugin.getDescription().getVersion();
 			}else if(response.equals("UK")){
 				// unknown
 			}else{
+				plugin.getLogger().info("There is a new version available for this Bukkit version");
 				latestVersion = response;
 			}
 			
+			// Close connection
 			in.close();
 		} catch (MalformedURLException e) {
 			plugin.getLogger().warning("Bad url: " + e.getMessage());
 		} catch (IOException e) {
 			plugin.getLogger().warning("Version check failed!");
+			plugin.getLogger().warning("Reason: " + e.getMessage());
 		}
 	}
 

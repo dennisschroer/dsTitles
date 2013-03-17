@@ -58,6 +58,7 @@ public class PlayerListener implements Listener {
 				// Send message to player with admin permissions
 				plugin.sendMessage(event.getPlayer(), plugin.getConfig().getString("messages.update_notification")
 						.replace("{version}", DS_Title.versionChecker.getLatestVersion())
+						.replace("{current}", plugin.getDescription().getVersion())
 						.replace("{website}", plugin.getDescription().getWebsite()));
 			}
 		}
