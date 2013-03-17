@@ -14,6 +14,10 @@ general:
   chat_format: '<{titleprefix}%1$s{titlesuffix}> %2$s'
   # Should the plugin show all unavailable titles when a player does /title list ?
   show_unavailable_titles: true
+  # Should the plugin check for updates and notify all players with ds_title.admin?
+  check_for_updates: true
+  # The time between two checks for a new version, in minutes (default 180 = 3 hours)
+  update_check_interval: 180
 messages:
   # I think this doesn't need explanation
   error_no_player: '&8[&eTitles&8] &cOnly players can use this command'
@@ -25,6 +29,7 @@ messages:
   title_granted: '&8[&eTitles&8] &eTitle &f{title} &egranted to &f{name}&e.'
   title_ungranted: '&8[&eTitles&8] &eTitle &f{title} &eungranted from &f{name}&e.'
   reloaded: '&8[&eTitles&8] &eConfig reloaded'
+  update_notification: '&8[&eTitles&8] &eThere is a new version ({version}) available. Download it here: {website}'
   # Header showed above unavailable titles, when a player does /title list
   unavailable_header: '&8~~=={  &cUnavailable &etitles &8}==~~'
   # Header showed above available titles, when a player does /title list

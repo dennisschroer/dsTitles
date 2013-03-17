@@ -17,22 +17,23 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
-public class DS_Title extends JavaPlugin implements Listener{
+public class DS_Title extends JavaPlugin{
     //public Chat chat = null;
 	
 	private FileConfiguration titleConfig = null;
 	private File titleConfigFile = null;
 	private PermissionManager permissionManager;
+	public static VersionChecker versionChecker;
 	
+	/**
+	 * Class representing a single title
+	 */
 	class Title implements Comparable<Title>{
 		public String name;
 		public String prefix;
 		public String suffix;
 		public String permission;
 		public String description;
-		public int type;
-		public static final int PREFIX = 0;
-		public static final int SUFFIX = 1;
 		
 		public Title(String name, String prefix, String suffix, String permission, String description){
 			this.name = name;
@@ -49,6 +50,9 @@ public class DS_Title extends JavaPlugin implements Listener{
 		
 	}
 
+	/**
+	 * Enable this plugin
+	 */
 	public void onEnable(){
 		// Register listeners
 		Listener playerlistener = new PlayerListener(this);
@@ -60,12 +64,27 @@ public class DS_Title extends JavaPlugin implements Listener{
 		this.getCommand("title").setExecutor(commandExec);	
 		
 		this.permissionManager = new PermissionManager(this);
+		versionChecker = new VersionChecker(this);
 		
 		// Load the config values
 		reloadConfiguration();	
+		
+		// Check for newer versions
+		if(this.getConfig().getBoolean("general.check_for_updates")){
+			activateVersionChecker();
+		}
 	}
 	
-
+	/**
+	 * Activate the versionCheckerThread to run on a timer
+	 */
+	private void activateVersionChecker(){
+		this.getServer().getScheduler().runTaskTimerAsynchronously(this, DS_Title.versionChecker, 0, this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+	}
+	
+	/**
+	 * Reload the configuration
+	 */
 	public void reloadConfiguration(){
 		this.reloadConfig();
 		this.reloadTitleConfig();
@@ -79,23 +98,46 @@ public class DS_Title extends JavaPlugin implements Listener{
 		
 	}
 	
+	/**
+	 * Get the PermissionManager responsible for managing permissions
+	 * @return PermissionManager
+	 */
 	public PermissionManager getPermissionManager(){
 		return this.permissionManager;
 	}
 	
+	/**
+	 * Get the title a player has set currently
+	 * @param playername
+	 * @return Title
+	 */
 	public Title getTitleOfPlayer(String playername){
 		return getTitle(titleConfig.getString("players." + playername, ""));
 	}
 	
+	/**
+	 * Set the title of the player to the given title
+	 * @param playername
+	 * @param title
+	 */
 	public void setTitleOfPlayer(String playername, Title title){
 		setTitleOfPlayer(playername, title.name);
 	}
 	
+	/**
+	 * Set the title of the player to the title with the given name
+	 * @param playername
+	 * @param titlename
+	 */
 	public void setTitleOfPlayer(String playername, String titlename){
 		titleConfig.set("players." + playername, titlename);
 		saveTitleConfig();
 	}
 	
+	/**
+	 * Clear the title of this player
+	 * @param playername
+	 */
 	public void clearTitleOfPlayer(String playername){
 		titleConfig.set("players." + playername, null);
 		saveTitleConfig();
@@ -124,6 +166,11 @@ public class DS_Title extends JavaPlugin implements Listener{
 		}
 	}
 	
+	/**
+	 * Check if a title with this name exists
+	 * @param name The name of the title to search for
+	 * @return true if it exists, false otherwise
+	 */
 	public boolean titleExists(String name){
 		return titleConfig.contains("titles." + name);
 	}
@@ -175,7 +222,6 @@ public class DS_Title extends JavaPlugin implements Listener{
 			return;
 		}
 		try {
-			//titleConfig.options().copyDefaults(true);
 			titleConfig.save(titleConfigFile);
 		} catch (IOException ex) {
 			getLogger().log(Level.SEVERE,

@@ -27,6 +27,14 @@ public class CommandExec implements CommandExecutor{
 		return false;		
 	}
 	
+	/**
+	 * Main method used when the /title command is executed
+	 * @param sender The sender of the command
+	 * @param cmd The command itself
+	 * @param commandlabel The label of this command
+	 * @param args The arguments passed to this command
+	 * @return true if the command is executed correctly, false otherwise
+	 */
 	private boolean cmdTitle(CommandSender sender, Command cmd, String commandlabel, String[] args) {
 		if(args.length==0){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_header"));
