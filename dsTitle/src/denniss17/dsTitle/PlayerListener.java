@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import denniss17.dsTitle.DS_Title.Title;
@@ -17,8 +17,10 @@ public class PlayerListener implements Listener {
 		this.plugin = plugin;
 	}
     
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onPlayerChat(AsyncPlayerChatEvent event) {
+	@SuppressWarnings("deprecation")
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onPlayerChat(PlayerChatEvent event) {
+		plugin.getLogger().info("Received format: " + event.getFormat());
 		Player player = event.getPlayer();
 		String chatFormat;
 		if(plugin.getConfig().getBoolean("general.overwrite_format")){
