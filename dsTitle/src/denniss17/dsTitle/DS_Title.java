@@ -145,6 +145,11 @@ public class DS_Title extends JavaPlugin{
 			String suffix = 	titleSection.contains("suffix") 	? titleSection.getString("suffix") 		: null;
 			String headprefix = titleSection.contains("headprefix") ? titleSection.getString("headprefix") 	: null;
 			String headsuffix = titleSection.contains("headsuffix") ? titleSection.getString("headsuffix") 	: null;
+			if(headprefix.length() >16 || headsuffix.length()>16){
+				getLogger().warning("Title '" + name + "' has been disabled!");
+				getLogger().warning("The headprefix and headsuffix cannot be longer than 16 characters, as this would kick every online player from the server");
+				return null;
+			}			
 			return new Title(name, prefix, suffix, headprefix, headsuffix, permission, description);
 		}else{
 			this.getLogger().warning("Title '" + name + "' not good configured and can't be used!");
