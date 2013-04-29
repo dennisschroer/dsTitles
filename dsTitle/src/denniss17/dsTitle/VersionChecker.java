@@ -8,6 +8,14 @@ import java.net.URL;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+/**
+ * VersionChecker v 1.1
+ * This generic class is used to check for updates of the corresponding plugin.
+ * It is compatible with every plugin
+ * @author Denniss17, All rights reserved
+ * @copyright Denniss17, All rights reserved
+ * @version 1.1.0
+ */
 public class VersionChecker implements Runnable{
 	
 	public String latestVersion = null;
@@ -24,6 +32,14 @@ public class VersionChecker implements Runnable{
 	public String getLatestVersion(){
 		return this.latestVersion;
 	}
+	
+	/** 
+	 * Activate this versionChecker to check for updates with the given interval (in ticks)
+	 * @param interval The interval in ticks
+	 *  */
+	public void activate(long interval){
+		plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this, 0, interval);
+	}
 
 	@Override
 	public void run() {
@@ -31,7 +47,8 @@ public class VersionChecker implements Runnable{
 		plugin.getLogger().info("Checking for updates...");
 		try {
 			// Read version via http
-			url = new URL("http://dennisschroer.nl/bukkitplugins/versioncheck/dsTitle/" +
+			url = new URL("http://dennisschroer.nl/bukkitplugins/versioncheck/" + 
+					plugin.getName() + '/' +
 					plugin.getServer().getBukkitVersion().replace(" ", "") + '/' +
 					plugin.getDescription().getVersion()
 					);
@@ -41,6 +58,7 @@ public class VersionChecker implements Runnable{
 			// Handle response
 			if(response.equals("OK")){
 				latestVersion = plugin.getDescription().getVersion();
+				plugin.getLogger().info("You have the latest version.");
 			}else if(response.equals("UK")){
 				// unknown
 			}else{

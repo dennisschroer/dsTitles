@@ -9,7 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import denniss17.dsTitle.DS_Title.Title;
+import denniss17.dsTitle.Title;
 
 public class CommandExec implements CommandExecutor{
 
@@ -116,9 +116,16 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		if(plugin.titleExists(args[1])){
+			Title current = plugin.getTitleOfPlayer(player);
 			Title title = plugin.getTitle(args[1]);
 			if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
-				plugin.setTitleOfPlayer(player.getName(), args[1]);
+				// Clean up previous title
+				if(plugin.getConfig().getBoolean("general.use_nametag")){
+					if(current!=null) plugin.getTeamManager().removePlayerFromTeam(player, current);
+				}
+				
+				// Set new title
+				plugin.setTitleOfPlayer(player, title);
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_set"));
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
@@ -141,7 +148,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		
-		plugin.clearTitleOfPlayer(player.getName());
+		plugin.clearTitleOfPlayer(player);
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_cleared"));
 		
 		return true;
@@ -149,7 +156,12 @@ public class CommandExec implements CommandExecutor{
 	
 	private boolean cmdTitleReload(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.admin")){
+			// Reload config
 			plugin.reloadConfiguration();
+			// Reload team tags
+			if(plugin.getConfig().getBoolean("general.use_nametag")){
+				plugin.getTeamManager().reloadTags();
+			}
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.reloaded"));
 			return true;
 		}else{
