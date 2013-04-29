@@ -68,8 +68,8 @@ public class TeamManager {
 		for(Title title : titles){
 			team = scoreboard.getTeam("dsTitle_" + title.name);
 			if(team!=null){
-				team.setPrefix(ChatStyler.setTotalStyle(title.headprefix));
-				team.setSuffix(ChatStyler.setTotalStyle(title.headsuffix));
+				if(title.headprefix != null) team.setPrefix(ChatStyler.setTotalStyle(title.headprefix));
+				if(title.headsuffix != null) team.setSuffix(ChatStyler.setTotalStyle(title.headsuffix));
 			}
 		}	
 	}
