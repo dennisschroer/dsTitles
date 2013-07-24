@@ -55,7 +55,7 @@ public class DS_Title extends JavaPlugin{
 	 */
 	public void onEnable(){
 		// Register listeners
-		Listener playerlistener = new PlayerListener(this);
+		Listener playerlistener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
 		this.getServer().getPluginManager()
 				.registerEvents(playerlistener, this);
 		

@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import denniss17.dsTitle.DS_Title.Title;
@@ -13,18 +14,32 @@ public class PlayerListener implements Listener {
 
 	private DS_Title plugin;
 	
-	public PlayerListener(DS_Title plugin){
+	private boolean asyncChatListener;
+	
+	public PlayerListener(DS_Title plugin, boolean asyncChatListener){
 		this.plugin = plugin;
+		this.asyncChatListener = asyncChatListener;
 	}
-    
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onPlayerChat(AsyncPlayerChatEvent event) {
-		Player player = event.getPlayer();
-		String chatFormat;
+	
+	@SuppressWarnings("deprecation")
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onPlayerSyncChat(PlayerChatEvent event){
+		if(asyncChatListener) return;
+		
+		event.setFormat(parseChatFormat(event.getFormat(), event.getPlayer()));
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onPlayerAsyncChat(AsyncPlayerChatEvent event) {
+		if(!asyncChatListener) return;
+		
+		event.setFormat(parseChatFormat(event.getFormat(), event.getPlayer()));
+	}
+
+	private String parseChatFormat(String chatFormat, Player player){		
 		if(plugin.getConfig().getBoolean("general.overwrite_format")){
 			chatFormat = plugin.getConfig().getString("general.chat_format");
 		}else{
-			chatFormat = event.getFormat();
 			if(!chatFormat.contains("{titlesuffix}")) chatFormat = chatFormat.replace("%1$s", "%1$s{titlesuffix}");
 			if(!chatFormat.contains("{titleprefix}")) chatFormat = chatFormat.replace("%1$s", "{titleprefix}%1$s");
 		}
@@ -45,11 +60,9 @@ public class PlayerListener implements Listener {
 			chatFormat = chatFormat.replace("{titleprefix}", "");
 		}
 		
-		chatFormat = ChatStyler.setTotalStyle(chatFormat);
-		
-		event.setFormat(chatFormat);
+		return ChatStyler.setTotalStyle(chatFormat);
 	}
-	
+    
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerJoin(PlayerJoinEvent event){
 		if(plugin.getPermissionManager().hasPermission(event.getPlayer(), "ds_title.admin")){
