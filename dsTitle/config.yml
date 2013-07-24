@@ -2,7 +2,6 @@
 # Config for dsTitle plugin
 # For the different text colors and styles, go to
 # http://www.minecraftwiki.net/wiki/Formatting_codes
-# (but replace the '§' with a '&')
 # Be aware to use spaces, not tabs.
 # For more info, see https://github.com/denniss17/dsTitles/blob/master/dsTitle/config.yml
 #
@@ -17,6 +16,10 @@ general:
   use_deprecated_listener: false
   # Should the plugin show all unavailable titles when a player does /title list ?
   show_unavailable_titles: true
+  # Should the plugin also change the tags above the heads of players?
+  # These will be set to the values of headprefix and headsuffix in titleConfig.yml
+  # Disable this if you have another plugin which handles this or uses teams of the Bukkit scoreboard api.
+  use_nametag: true
   # Should the plugin check for updates and notify all players with ds_title.admin?
   check_for_updates: true
   # The time between two checks for a new version, in minutes (default 180 = 3 hours)
@@ -38,7 +41,7 @@ messages:
   # Header showed above available titles, when a player does /title list
   available_header: '&8~~=={  &aAvailable &etitles &8}==~~'
   # Make up of one title in the list showed when a player does /title list
-  title_listitem: '{name} ({preview}) {description}'
+  title_listitem: '{name}&r: {preview} &r&8({description})'
   # The help menu (if you just use /title)
   menu_header: '&8~~=={ &e&ldsTitles help &r&8}==~~'
   menu_list: ' &e/title list &fList available titles'

@@ -13,6 +13,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,32 +24,8 @@ public class DS_Title extends JavaPlugin{
 	private FileConfiguration titleConfig = null;
 	private File titleConfigFile = null;
 	private PermissionManager permissionManager;
+	private TeamManager teamManager;
 	public static VersionChecker versionChecker;
-	
-	/**
-	 * Class representing a single title
-	 */
-	class Title implements Comparable<Title>{
-		public String name;
-		public String prefix;
-		public String suffix;
-		public String permission;
-		public String description;
-		
-		public Title(String name, String prefix, String suffix, String permission, String description){
-			this.name = name;
-			this.prefix = prefix;
-			this.suffix = suffix;
-			this.permission = permission;
-			this.description = description;
-		}
-		
-		@Override
-		public int compareTo(Title otherTitle) {
-			return otherTitle.name.compareTo(this.name);
-		}
-		
-	}
 
 	/**
 	 * Enable this plugin
@@ -64,10 +41,16 @@ public class DS_Title extends JavaPlugin{
 		this.getCommand("title").setExecutor(commandExec);	
 		
 		this.permissionManager = new PermissionManager(this);
+		this.teamManager = new TeamManager(this);
 		versionChecker = new VersionChecker(this);
 		
 		// Load the config values
 		reloadConfiguration();	
+		if(getConfig().getBoolean("general.use_nametag")){
+			teamManager.reloadTags();
+		}
+		// Clean up teams, especialy when name tags are disabled
+		teamManager.cleanUpTeams(!getConfig().getBoolean("general.use_nametag"));
 		
 		// Check for newer versions
 		if(this.getConfig().getBoolean("general.check_for_updates")){
@@ -88,14 +71,10 @@ public class DS_Title extends JavaPlugin{
 	public void reloadConfiguration(){
 		this.reloadConfig();
 		this.reloadTitleConfig();
+		
 		this.saveTitleConfig();
-		
-		// Save config if not existing
-		//if(!(new File(this.getDataFolder(), "config.yml").exists())){
-			this.getConfig().options().copyDefaults(true);
-	        this.saveConfig();
-		//}
-		
+		this.getConfig().options().copyDefaults(true);
+        this.saveConfig();		
 	}
 	
 	/**
@@ -106,31 +85,32 @@ public class DS_Title extends JavaPlugin{
 		return this.permissionManager;
 	}
 	
+	public TeamManager getTeamManager() {
+		return this.teamManager;
+	}
+
 	/**
 	 * Get the title a player has set currently
 	 * @param playername
 	 * @return Title
 	 */
-	public Title getTitleOfPlayer(String playername){
-		return getTitle(titleConfig.getString("players." + playername, ""));
+	public Title getTitleOfPlayer(Player player){
+		return getTitle(titleConfig.getString("players." + player.getName(), ""));
 	}
 	
 	/**
 	 * Set the title of the player to the given title
-	 * @param playername
-	 * @param title
+	 * @param player The Player for who to set the title
+	 * @param title The Title to set
 	 */
-	public void setTitleOfPlayer(String playername, Title title){
-		setTitleOfPlayer(playername, title.name);
-	}
-	
-	/**
-	 * Set the title of the player to the title with the given name
-	 * @param playername
-	 * @param titlename
-	 */
-	public void setTitleOfPlayer(String playername, String titlename){
-		titleConfig.set("players." + playername, titlename);
+	public void setTitleOfPlayer(Player player, Title title){
+		// Set tag above player
+		if(getConfig().getBoolean("general.use_nametag")){
+			teamManager.getTeam(title).addPlayer(player);
+		}
+		// Set tag in chat
+		titleConfig.set("players." + player.getName(), title.name);
+		// Save to file
 		saveTitleConfig();
 	}
 	
@@ -138,8 +118,12 @@ public class DS_Title extends JavaPlugin{
 	 * Clear the title of this player
 	 * @param playername
 	 */
-	public void clearTitleOfPlayer(String playername){
-		titleConfig.set("players." + playername, null);
+	public void clearTitleOfPlayer(Player player){
+		if(getConfig().getBoolean("general.use_nametag")){
+			Title current = getTitleOfPlayer(player);
+			if(current!=null) teamManager.removePlayerFromTeam(player, current);
+		}
+		titleConfig.set("players." + player.getName(), null);
 		saveTitleConfig();
 	}
 	
@@ -157,9 +141,19 @@ public class DS_Title extends JavaPlugin{
 		if(titleSection!=null){
 			String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
 			String description = titleSection.contains("description") ? titleSection.getString("description") : null;
-			String prefix = titleSection.contains("prefix") ? titleSection.getString("prefix") : null;
-			String suffix = titleSection.contains("suffix") ? titleSection.getString("suffix") : null;
-			return new Title(name, prefix, suffix, permission, description);
+			String prefix = 	titleSection.contains("prefix") 	? titleSection.getString("prefix") 		: null;
+			String suffix = 	titleSection.contains("suffix") 	? titleSection.getString("suffix") 		: null;
+			String headprefix = titleSection.contains("headprefix") ? titleSection.getString("headprefix") 	: null;
+			String headsuffix = titleSection.contains("headsuffix") ? titleSection.getString("headsuffix") 	: null;
+			if(
+					(headprefix!=null && headprefix.length() >16) || 
+					(headsuffix!=null && headsuffix.length()>16)
+					){
+				getLogger().warning("Title '" + name + "' has been disabled!");
+				getLogger().warning("The headprefix and headsuffix cannot be longer than 16 characters, as this would kick every online player from the server");
+				return null;
+			}			
+			return new Title(name, prefix, suffix, headprefix, headsuffix, permission, description);
 		}else{
 			this.getLogger().warning("Title '" + name + "' not good configured and can't be used!");
 			return null;
