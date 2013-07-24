@@ -10,8 +10,8 @@ general:
   overwrite_format: false
   # The charformat used when overwrite_format is true
   # %1$s will be replaced with the playername, %2$s with the message and
-  # {titleprefix} and {titlesuffix} with the title
-  chat_format: '<{titleprefix}%1$s{titlesuffix}> %2$s'
+  # [titleprefix] and [titlesuffix] with the title
+  chat_format: '<[titleprefix]%1$s[titlesuffix]> %2$s'
   # Set this to true if you use ChatManager
   use_deprecated_listener: false
   # Should the plugin show all unavailable titles when a player does /title list ?

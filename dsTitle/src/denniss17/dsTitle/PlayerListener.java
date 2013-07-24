@@ -41,24 +41,24 @@ public class PlayerListener implements Listener {
 		if(plugin.getConfig().getBoolean("general.overwrite_format")){
 			chatFormat = plugin.getConfig().getString("general.chat_format");
 		}else{
-			if(!chatFormat.contains("{titlesuffix}")) chatFormat = chatFormat.replace("%1$s", "%1$s{titlesuffix}");
-			if(!chatFormat.contains("{titleprefix}")) chatFormat = chatFormat.replace("%1$s", "{titleprefix}%1$s");
+			if(!chatFormat.contains("[titlesuffix]")) chatFormat = chatFormat.replace("%1$s", "%1$s{titlesuffix}");
+			if(!chatFormat.contains("[titleprefix]")) chatFormat = chatFormat.replace("%1$s", "{titleprefix}%1$s");
 		}
 		Title title = plugin.getTitleOfPlayer(player);
 		if(title!=null){
 			if(title.prefix != null ){
-				chatFormat = chatFormat.replace("{titleprefix}", title.prefix + "&r");
+				chatFormat = chatFormat.replace("[titleprefix]", title.prefix + "&r");
 			}else{
-				chatFormat = chatFormat.replace("{titleprefix}", "");
+				chatFormat = chatFormat.replace("{[titleprefix]", "");
 			}
 			if(title.suffix != null ){
-				chatFormat = chatFormat.replace("{titlesuffix}", title.suffix + "&r");
+				chatFormat = chatFormat.replace("[titlesuffix]", title.suffix + "&r");
 			}else{
-				chatFormat = chatFormat.replace("{titlesuffix}", "");
+				chatFormat = chatFormat.replace("[titlesuffix]", "");
 			}
 		}else{
-			chatFormat = chatFormat.replace("{titlesuffix}", "");
-			chatFormat = chatFormat.replace("{titleprefix}", "");
+			chatFormat = chatFormat.replace("[titlesuffix]", "");
+			chatFormat = chatFormat.replace("[titleprefix]", "");
 		}
 		
 		return ChatStyler.setTotalStyle(chatFormat);

@@ -24,12 +24,12 @@ public class TeamManager {
 	public Team getTeam(Title title){
 		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
 		
-		Team team = scoreboard.getTeam("dsTitle_" + title.name);
+		Team team = scoreboard.getTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
 		
 		if(team==null){
-			team = scoreboard.registerNewTeam("dsTitle_" + title.name);
-			if(title.headprefix != null) team.setPrefix(ChatStyler.setTotalStyle(title.headprefix));
-			if(title.headsuffix != null) team.setSuffix(ChatStyler.setTotalStyle(title.headsuffix));
+			team = scoreboard.registerNewTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
+			if(title.headprefix != null) team.setPrefix(ChatStyler.setTotalStyle(title.headprefix).substring(0, 16));
+			if(title.headsuffix != null) team.setSuffix(ChatStyler.setTotalStyle(title.headsuffix).substring(0, 16));
 			// Set options to same as if not in team
 			team.setAllowFriendlyFire(true);
 			team.setCanSeeFriendlyInvisibles(false);
@@ -47,7 +47,7 @@ public class TeamManager {
 	public void removePlayerFromTeam(Player player, Title title) {
 		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
 		
-		Team team = scoreboard.getTeam("dsTitle_" + title.name);
+		Team team = scoreboard.getTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
 		if(team!=null){
 			team.removePlayer(player);
 			// Cleanup
@@ -66,7 +66,7 @@ public class TeamManager {
 		Team team;
 		
 		for(Title title : titles){
-			team = scoreboard.getTeam("dsTitle_" + title.name);
+			team = scoreboard.getTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
 			if(team!=null){
 				if(title.headprefix != null) team.setPrefix(ChatStyler.setTotalStyle(title.headprefix));
 				if(title.headsuffix != null) team.setSuffix(ChatStyler.setTotalStyle(title.headsuffix));
@@ -83,7 +83,7 @@ public class TeamManager {
 		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
 		
 		for(Team team : scoreboard.getTeams()){
-			if(team.getName().startsWith("dsTitle_")){
+			if(team.getName().startsWith("dt_")){
 				if(team.getSize()==0 || force){
 					// Nobody in team, or everything should be removed
 					team.unregister();
