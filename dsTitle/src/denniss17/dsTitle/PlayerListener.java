@@ -49,7 +49,7 @@ public class PlayerListener implements Listener {
 			if(title.prefix != null ){
 				chatFormat = chatFormat.replace("[titleprefix]", title.prefix + "&r");
 			}else{
-				chatFormat = chatFormat.replace("{[titleprefix]", "");
+				chatFormat = chatFormat.replace("[titleprefix]", "");
 			}
 			if(title.suffix != null ){
 				chatFormat = chatFormat.replace("[titlesuffix]", title.suffix + "&r");
@@ -73,7 +73,6 @@ public class PlayerListener implements Listener {
 				plugin.getTeamManager().getTeam(title).addPlayer(event.getPlayer());
 			}
 		}
-		
 		
 		// Check for update and send message
 		if(plugin.getPermissionManager().hasPermission(event.getPlayer(), "ds_title.admin")){

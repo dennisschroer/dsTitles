@@ -28,8 +28,16 @@ public class TeamManager {
 		
 		if(team==null){
 			team = scoreboard.registerNewTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
-			if(title.headprefix != null) team.setPrefix(ChatStyler.setTotalStyle(title.headprefix).substring(0, 16));
-			if(title.headsuffix != null) team.setSuffix(ChatStyler.setTotalStyle(title.headsuffix).substring(0, 16));
+			if(title.headprefix != null){
+				String prefix = ChatStyler.setTotalStyle(title.headprefix);
+				if(prefix.length()>16) prefix = prefix.substring(0, 16);
+				team.setPrefix(prefix);
+			}
+			if(title.headsuffix != null){
+				String suffix = ChatStyler.setTotalStyle(title.headsuffix);
+				if(suffix.length()>16) suffix = suffix.substring(0, 16);
+				team.setSuffix(suffix);
+			}
 			// Set options to same as if not in team
 			team.setAllowFriendlyFire(true);
 			team.setCanSeeFriendlyInvisibles(false);
