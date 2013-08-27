@@ -1,15 +1,21 @@
 #
 # This is the config file where you put the title
 # These have to be in the following format:
-# titles:
+# prefixes:
 #   <name>:
-#     prefix: <prefix>
-#     suffix: <suffix>
-#     headprefix: <prefix>
-#     headsuffix: <suffix>
+#     chattag: <chattag>
+#     headtag: <headtag>
+#     permission: <permission needed>
+#     description: <description>
+# suffixes:
+#   <name>:
+#     chattag: <chattag>
+#     headtag: <headtag>
 #     permission: <permission needed>
 #     description: <description>
 #
-# Permission and description are optional.
+# Chattag, headtag, permission and description are optional, although it is usefull
+# if at least one of chattag and headtag is set ;-)
 #
-titles: 
+prefixes: {}
+suffixes: {}

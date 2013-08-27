@@ -3,7 +3,8 @@ package denniss17.dsTitle;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -21,16 +22,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import denniss17.dsTitle.Title.Type;
 
 
-public class DS_Title extends JavaPlugin{
-    //public Chat chat = null;
-	
+public class DS_Title extends JavaPlugin{	
 	private FileConfiguration titleConfig = null;
 	private File titleConfigFile = null;
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
 	public static VersionChecker versionChecker;
-	public List<String> prefixes;
-	public List<String> suffixes;
+	public Map<String, Title> prefixBuffer;
+	public Map<String, Title> suffixBuffer;
 
 	/**
 	 * Enable this plugin
@@ -59,6 +58,9 @@ public class DS_Title extends JavaPlugin{
 		
 		PlayerListener.prefixTag = getConfig().getString("general.chat_format_prefix_tag", "[titleprefix]");
 		PlayerListener.suffixTag = getConfig().getString("general.chat_format_suffix_tag", "[titlesfix]");
+		
+		prefixBuffer = new HashMap<String, Title>();
+		suffixBuffer = new HashMap<String, Title>();
 		
 		// Check for newer versions
 		if(this.getConfig().getBoolean("general.check_for_updates")){
@@ -175,24 +177,25 @@ public class DS_Title extends JavaPlugin{
 		if(name==null||name.equals("")){
 			return null;
 		}
-		ConfigurationSection titleSection = titleConfig.getConfigurationSection("suffixes." + name);
-		if(titleSection!=null){
-			String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
-			String description = titleSection.contains("description") ? titleSection.getString("description") : null;
-			String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
-			String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
-			if(
-					(headTag!=null && headTag.length() >16)
-					){
-				getLogger().warning("Suffix  '" + name + "' has been disabled!");
-				getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
+		if(!suffixBuffer.containsKey(name)){
+			ConfigurationSection titleSection = titleConfig.getConfigurationSection("suffixes." + name);
+			if(titleSection!=null){
+				String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
+				String description = titleSection.contains("description") ? titleSection.getString("description") : null;
+				String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
+				String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
+				if(headTag!=null && headTag.length() >16){
+					getLogger().warning("Suffix  '" + name + "' has been disabled!");
+					getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
+					return null;
+				}			
+				suffixBuffer.put(name, new Title(name, Type.PREFIX, chatTag, headTag, permission, description));
+			}else{
+				this.getLogger().warning("Suffix '" + name + "' not good configured and can't be used!");
 				return null;
-			}			
-			return new Title(name, Type.PREFIX, chatTag, headTag, permission, description);
-		}else{
-			this.getLogger().warning("Suffix '" + name + "' not good configured and can't be used!");
-			return null;
+			}
 		}
+		return suffixBuffer.get(name);
 	}
 	
 	/**
@@ -205,24 +208,27 @@ public class DS_Title extends JavaPlugin{
 		if(name==null||name.equals("")){
 			return null;
 		}
-		ConfigurationSection titleSection = titleConfig.getConfigurationSection("prefixes." + name);
-		if(titleSection!=null){
-			String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
-			String description = titleSection.contains("description") ? titleSection.getString("description") : null;
-			String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
-			String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
-			if(
-					(headTag!=null && headTag.length() >16)
-					){
-				getLogger().warning("Prefix  '" + name + "' has been disabled!");
-				getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
+		if(!prefixBuffer.containsKey(name)){
+			ConfigurationSection titleSection = titleConfig.getConfigurationSection("prefixes." + name);
+			if(titleSection!=null){
+				String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
+				String description = titleSection.contains("description") ? titleSection.getString("description") : null;
+				String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
+				String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
+				if(
+						(headTag!=null && headTag.length() >16)
+						){
+					getLogger().warning("Prefix  '" + name + "' has been disabled!");
+					getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
+					return null;
+				}			
+				prefixBuffer.put(name, new Title(name, Type.PREFIX, chatTag, headTag, permission, description));
+			}else{
+				this.getLogger().warning("Prefix '" + name + "' not good configured and can't be used!");
 				return null;
-			}			
-			return new Title(name, Type.PREFIX, chatTag, headTag, permission, description);
-		}else{
-			this.getLogger().warning("Prefix '" + name + "' not good configured and can't be used!");
-			return null;
+			}
 		}
+		return prefixBuffer.get(name);
 	}
 	
 	/**
