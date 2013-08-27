@@ -40,12 +40,12 @@ public class TeamManager {
 				i++;
 			}
 			team = scoreboard.registerNewTeam("dt_" + i);
-			if(prefix.headTag != null){
+			if(prefix!=null && prefix.headTag != null){
 				String p = ChatStyler.setTotalStyle(prefix.headTag);
 				if(p.length()>16) p = p.substring(0, 16);
 				team.setPrefix(p);
 			}
-			if(suffix.headTag != null){
+			if(suffix!=null && suffix.headTag != null){
 				String p = ChatStyler.setTotalStyle(suffix.headTag);
 				if(p.length()>16) p = p.substring(0, 16);
 				team.setSuffix(p);
@@ -54,7 +54,7 @@ public class TeamManager {
 			team.setAllowFriendlyFire(true);
 			team.setCanSeeFriendlyInvisibles(false);
 			
-			teams.put(prefix.name + "-" + suffix.name, team);
+			teams.put(prefixName + "-" + suffixName, team);
 		}
 		
 		return team;
@@ -140,12 +140,12 @@ public class TeamManager {
 					Title prefix;
 					while(prefixIterator.hasNext() && !found){
 						prefix = prefixIterator.next();
-						if(team.getPrefix().equals(ChatStyler.setTotalStyle(prefix.headTag))){
+						if(prefix.headTag!=null && team.getPrefix().equals(ChatStyler.setTotalStyle(prefix.headTag))){
 							Iterator<Title> suffixIterator = plugin.getSuffixes().iterator();
 							Title suffix;
 							while(suffixIterator.hasNext() && !found){
 								suffix = suffixIterator.next();
-								if(team.getSuffix().equals(ChatStyler.setTotalStyle(suffix.headTag))){
+								if(suffix.headTag!=null && team.getSuffix().equals(ChatStyler.setTotalStyle(suffix.headTag))){
 									found = true;
 								}
 							}

@@ -35,6 +35,9 @@ public class DS_Title extends JavaPlugin{
 	 * Enable this plugin
 	 */
 	public void onEnable(){
+		prefixBuffer = new HashMap<String, Title>();
+		suffixBuffer = new HashMap<String, Title>();
+		
 		// Register listeners
 		Listener playerlistener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
 		this.getServer().getPluginManager()
@@ -50,17 +53,14 @@ public class DS_Title extends JavaPlugin{
 		
 		// Load the config values
 		reloadConfiguration();	
+		PlayerListener.prefixTag = getConfig().getString("general.chat_format_prefix_tag", "[titleprefix]");
+		PlayerListener.suffixTag = getConfig().getString("general.chat_format_suffix_tag", "[titlesfix]");
+		
 		if(getConfig().getBoolean("general.use_nametag")){
 			teamManager.reloadTags();
 		}
 		// Clean up teams, especialy when name tags are disabled
-		teamManager.cleanUpTeams(!getConfig().getBoolean("general.use_nametag"));
-		
-		PlayerListener.prefixTag = getConfig().getString("general.chat_format_prefix_tag", "[titleprefix]");
-		PlayerListener.suffixTag = getConfig().getString("general.chat_format_suffix_tag", "[titlesfix]");
-		
-		prefixBuffer = new HashMap<String, Title>();
-		suffixBuffer = new HashMap<String, Title>();
+		teamManager.cleanUpTeams(!getConfig().getBoolean("general.use_nametag"));		
 		
 		// Check for newer versions
 		if(this.getConfig().getBoolean("general.check_for_updates")){
