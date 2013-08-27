@@ -3,6 +3,7 @@ package denniss17.dsTitle;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -17,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import denniss17.dsTitle.Title.Type;
+
 
 public class DS_Title extends JavaPlugin{
     //public Chat chat = null;
@@ -26,6 +29,8 @@ public class DS_Title extends JavaPlugin{
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
 	public static VersionChecker versionChecker;
+	public List<String> prefixes;
+	public List<String> suffixes;
 
 	/**
 	 * Enable this plugin
@@ -52,6 +57,9 @@ public class DS_Title extends JavaPlugin{
 		// Clean up teams, especialy when name tags are disabled
 		teamManager.cleanUpTeams(!getConfig().getBoolean("general.use_nametag"));
 		
+		PlayerListener.prefixTag = getConfig().getString("general.chat_format_prefix_tag", "[titleprefix]");
+		PlayerListener.suffixTag = getConfig().getString("general.chat_format_suffix_tag", "[titlesfix]");
+		
 		// Check for newer versions
 		if(this.getConfig().getBoolean("general.check_for_updates")){
 			activateVersionChecker();
@@ -74,7 +82,11 @@ public class DS_Title extends JavaPlugin{
 		
 		this.saveTitleConfig();
 		this.getConfig().options().copyDefaults(true);
-        this.saveConfig();		
+        this.saveConfig();	
+        
+        PlayerListener.prefixTag = getConfig().getString("general.chat_format_prefix_tag", "[titleprefix]");
+		PlayerListener.suffixTag = getConfig().getString("general.chat_format_suffix_tag", "[titlesuffix]");
+		PlayerListener.playerTag = getConfig().getString("general.chat_format_player_tag", "%1$s");
 	}
 	
 	/**
@@ -90,26 +102,51 @@ public class DS_Title extends JavaPlugin{
 	}
 
 	/**
-	 * Get the title a player has set currently
+	 * Get the Title a player has set currently as prefix
 	 * @param playername
 	 * @return Title
 	 */
-	public Title getTitleOfPlayer(Player player){
-		return getTitle(titleConfig.getString("players." + player.getName(), ""));
+	public Title getPrefixOfPlayer(Player player){
+		return getPrefix(titleConfig.getString("players." + player.getName() + ".prefix", ""));
 	}
 	
 	/**
-	 * Set the title of the player to the given title
-	 * @param player The Player for who to set the title
+	 * Get the Title a player has set currently as suffix
+	 * @param playername
+	 * @return Title
+	 */
+	public Title getSuffixOfPlayer(Player player){
+		return getSuffix(titleConfig.getString("players." + player.getName() + ".suffix", ""));
+	}
+	
+	/**
+	 * Set the prefix of the player to the given Title
+	 * @param player The Player for who to set the Title
 	 * @param title The Title to set
 	 */
-	public void setTitleOfPlayer(Player player, Title title){
+	public void setPrefixOfPlayer(Player player, Title title){
 		// Set tag above player
 		if(getConfig().getBoolean("general.use_nametag")){
-			teamManager.getTeam(title).addPlayer(player);
+			teamManager.getTeam(title, getSuffixOfPlayer(player)).addPlayer(player);
 		}
 		// Set tag in chat
-		titleConfig.set("players." + player.getName(), title.name);
+		titleConfig.set("players." + player.getName() + ".prefix", title.name);
+		// Save to file
+		saveTitleConfig();
+	}
+	
+	/**
+	 * Set the suffix of the player to the given Title
+	 * @param player The Player for who to set the Title
+	 * @param title The Title to set
+	 */
+	public void setSuffixOfPlayer(Player player, Title title){
+		// Set tag above player
+		if(getConfig().getBoolean("general.use_nametag")){
+			teamManager.getTeam(getPrefixOfPlayer(player), title).addPlayer(player);
+		}
+		// Set tag in chat
+		titleConfig.set("players." + player.getName() + ".suffix", title.name);
 		// Save to file
 		saveTitleConfig();
 	}
@@ -120,66 +157,120 @@ public class DS_Title extends JavaPlugin{
 	 */
 	public void clearTitleOfPlayer(Player player){
 		if(getConfig().getBoolean("general.use_nametag")){
-			Title current = getTitleOfPlayer(player);
-			if(current!=null) teamManager.removePlayerFromTeam(player, current);
+			Title prefix = getPrefixOfPlayer(player);
+			Title suffix = getSuffixOfPlayer(player);
+			if(prefix!=null || suffix!=null) teamManager.removePlayerFromTeam(player, prefix, suffix);
 		}
 		titleConfig.set("players." + player.getName(), null);
 		saveTitleConfig();
 	}
 	
 	/**
-	 * Load a title from config
-	 * @param name The name of the title
-	 * @return A title instance
+	 * Load a suffix from config
+	 * @param name The name of the suffix
+	 * @return A Title instance
 	 * @ensure result.name.equals(name)
 	 */
-	public Title getTitle(String name){
+	public Title getSuffix(String name){
 		if(name==null||name.equals("")){
 			return null;
 		}
-		ConfigurationSection titleSection = titleConfig.getConfigurationSection("titles." + name);
+		ConfigurationSection titleSection = titleConfig.getConfigurationSection("suffixes." + name);
 		if(titleSection!=null){
 			String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
 			String description = titleSection.contains("description") ? titleSection.getString("description") : null;
-			String prefix = 	titleSection.contains("prefix") 	? titleSection.getString("prefix") 		: null;
-			String suffix = 	titleSection.contains("suffix") 	? titleSection.getString("suffix") 		: null;
-			String headprefix = titleSection.contains("headprefix") ? titleSection.getString("headprefix") 	: null;
-			String headsuffix = titleSection.contains("headsuffix") ? titleSection.getString("headsuffix") 	: null;
+			String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
+			String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
 			if(
-					(headprefix!=null && headprefix.length() >16) || 
-					(headsuffix!=null && headsuffix.length()>16)
+					(headTag!=null && headTag.length() >16)
 					){
-				getLogger().warning("Title '" + name + "' has been disabled!");
-				getLogger().warning("The headprefix and headsuffix cannot be longer than 16 characters, as this would kick every online player from the server");
+				getLogger().warning("Suffix  '" + name + "' has been disabled!");
+				getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
 				return null;
 			}			
-			return new Title(name, prefix, suffix, headprefix, headsuffix, permission, description);
+			return new Title(name, Type.PREFIX, chatTag, headTag, permission, description);
 		}else{
-			this.getLogger().warning("Title '" + name + "' not good configured and can't be used!");
+			this.getLogger().warning("Suffix '" + name + "' not good configured and can't be used!");
 			return null;
 		}
 	}
 	
 	/**
-	 * Check if a title with this name exists
+	 * Load a prefix from config
+	 * @param name The name of the title
+	 * @return A title instance
+	 * @ensure result.name.equals(name)
+	 */
+	public Title getPrefix(String name){
+		if(name==null||name.equals("")){
+			return null;
+		}
+		ConfigurationSection titleSection = titleConfig.getConfigurationSection("prefixes." + name);
+		if(titleSection!=null){
+			String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
+			String description = titleSection.contains("description") ? titleSection.getString("description") : null;
+			String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
+			String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
+			if(
+					(headTag!=null && headTag.length() >16)
+					){
+				getLogger().warning("Prefix  '" + name + "' has been disabled!");
+				getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
+				return null;
+			}			
+			return new Title(name, Type.PREFIX, chatTag, headTag, permission, description);
+		}else{
+			this.getLogger().warning("Prefix '" + name + "' not good configured and can't be used!");
+			return null;
+		}
+	}
+	
+	/**
+	 * Check if a prefix with this name exists
 	 * @param name The name of the title to search for
 	 * @return true if it exists, false otherwise
 	 */
-	public boolean titleExists(String name){
-		return titleConfig.contains("titles." + name);
+	public boolean prefixExists(String name){
+		return titleConfig.contains("prefixes." + name);
+	}
+	
+	/**
+	 * Check if a suffix with this name exists
+	 * @param name The name of the title to search for
+	 * @return true if it exists, false otherwise
+	 */
+	public boolean suffixExists(String name){
+		return titleConfig.contains("suffixes." + name);
 	}
 	
 	/** 
-	 * Get an ordered set of titles.
-	 * @return SortedSet: a sorted set of all titles
+	 * Get an ordered set of prefixes.
+	 * @return SortedSet: a sorted set of all prefixes
 	 */
-	public SortedSet<Title> getTitles(){
+	public SortedSet<Title> getPrefixes(){
 		SortedSet<Title> result = new TreeSet<Title>();
-		if(titleConfig.contains("titles")){
-			Set<String> titles = titleConfig.getConfigurationSection("titles").getKeys(false);
+		if(titleConfig.contains("prefixes")){
+			Set<String> titles = titleConfig.getConfigurationSection("prefixes").getKeys(false);
 			
 			for(String name: titles){
-				Title title = getTitle(name);
+				Title title = getPrefix(name);
+				if(title!=null) result.add(title);
+			}
+		}
+		return result;
+	}
+	
+	/** 
+	 * Get an ordered set of suffixes.
+	 * @return SortedSet: a sorted set of all suffixes
+	 */
+	public SortedSet<Title> getSuffixes(){
+		SortedSet<Title> result = new TreeSet<Title>();
+		if(titleConfig.contains("suffixes")){
+			Set<String> titles = titleConfig.getConfigurationSection("suffixes").getKeys(false);
+			
+			for(String name: titles){
+				Title title = getSuffix(name);
 				if(title!=null) result.add(title);
 			}
 		}

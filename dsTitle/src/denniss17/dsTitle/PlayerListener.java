@@ -17,6 +17,10 @@ public class PlayerListener implements Listener {
 	
 	private boolean asyncChatListener;
 	
+	public static String prefixTag;
+	public static String suffixTag;
+	public static String playerTag;
+	
 	public PlayerListener(DS_Title plugin, boolean asyncChatListener){
 		this.plugin = plugin;
 		this.asyncChatListener = asyncChatListener;
@@ -41,24 +45,28 @@ public class PlayerListener implements Listener {
 		if(plugin.getConfig().getBoolean("general.overwrite_format")){
 			chatFormat = plugin.getConfig().getString("general.chat_format");
 		}else{
-			if(!chatFormat.contains("[titlesuffix]")) chatFormat = chatFormat.replace("%1$s", "%1$s{titlesuffix}");
-			if(!chatFormat.contains("[titleprefix]")) chatFormat = chatFormat.replace("%1$s", "{titleprefix}%1$s");
+			if(!chatFormat.contains(prefixTag)) chatFormat = chatFormat.replace(playerTag, prefixTag + playerTag);
+			if(!chatFormat.contains(suffixTag)) chatFormat = chatFormat.replace(playerTag, playerTag + suffixTag);
 		}
-		Title title = plugin.getTitleOfPlayer(player);
-		if(title!=null){
-			if(title.prefix != null ){
-				chatFormat = chatFormat.replace("[titleprefix]", title.prefix + "&r");
+		Title prefix = plugin.getPrefixOfPlayer(player);
+		Title suffix = plugin.getSuffixOfPlayer(player);
+		if(prefix!=null){
+			if(!chatFormat.contains(prefixTag)){
+				chatFormat = chatFormat.replace(playerTag, prefix.chatTag + playerTag + "&r");
 			}else{
-				chatFormat = chatFormat.replace("[titleprefix]", "");
-			}
-			if(title.suffix != null ){
-				chatFormat = chatFormat.replace("[titlesuffix]", title.suffix + "&r");
-			}else{
-				chatFormat = chatFormat.replace("[titlesuffix]", "");
+				chatFormat = chatFormat.replace(prefixTag, prefix.chatTag + "&r");
 			}
 		}else{
-			chatFormat = chatFormat.replace("[titlesuffix]", "");
-			chatFormat = chatFormat.replace("[titleprefix]", "");
+			chatFormat = chatFormat.replace(prefixTag, "");
+		}
+		if(suffix!=null){
+			if(!chatFormat.contains(suffixTag)){
+				chatFormat = chatFormat.replace(playerTag, suffix.chatTag + playerTag + "&r");
+			}else{
+				chatFormat = chatFormat.replace(suffixTag, suffix.chatTag + "&r");
+			}
+		}else{
+			chatFormat = chatFormat.replace(suffixTag, "");
 		}
 		
 		return ChatStyler.setTotalStyle(chatFormat);
@@ -68,9 +76,10 @@ public class PlayerListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event){
 		// Set tag above head
 		if(plugin.getConfig().getBoolean("general.use_nametag")){
-			Title title = plugin.getTitleOfPlayer(event.getPlayer());
-			if(title!=null){
-				plugin.getTeamManager().getTeam(title).addPlayer(event.getPlayer());
+			Title prefix = plugin.getPrefixOfPlayer(event.getPlayer());
+			Title suffix = plugin.getSuffixOfPlayer(event.getPlayer());
+			if(prefix!=null || suffix!=null){
+				plugin.getTeamManager().getTeam(prefix, suffix).addPlayer(event.getPlayer());
 			}
 		}
 		
@@ -90,10 +99,7 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event){
 		if(plugin.getConfig().getBoolean("general.use_nametag")){
-			Title title = plugin.getTitleOfPlayer(event.getPlayer());
-			if(title!=null){
-				plugin.getTeamManager().removePlayerFromTeam(event.getPlayer(), title);
-			}
+			plugin.getTeamManager().removePlayerFromTeam(event.getPlayer());
 		}
 	}
 }

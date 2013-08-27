@@ -1,6 +1,9 @@
 package denniss17.dsTitle;
 
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
@@ -11,8 +14,11 @@ import denniss17.dsTitle.Title;
 public class TeamManager {	
 	private DS_Title plugin;
 	
+	private Map<String, Team> teams;
+	
 	public TeamManager(DS_Title plugin) {
 		this.plugin = plugin;
+		this.teams = new HashMap<String, Team>();
 	}
 
 	/**
@@ -21,29 +27,41 @@ public class TeamManager {
 	 * @return the Team
 	 * @ensure result.getPrefix().equals(title.headprefix) && result.getSuffix().equals(title.headsuffix)
 	 */
-	public Team getTeam(Title title){
+	public Team getTeam(Title prefix, Title suffix){
 		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
 		
-		Team team = scoreboard.getTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
+		String prefixName = prefix==null ? "" : prefix.name;
+		String suffixName = suffix==null ? "" : suffix.name;
+		Team team = teams.get(prefixName + "-" + suffixName);
 		
 		if(team==null){
-			team = scoreboard.registerNewTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
-			if(title.headprefix != null){
-				String prefix = ChatStyler.setTotalStyle(title.headprefix);
-				if(prefix.length()>16) prefix = prefix.substring(0, 16);
-				team.setPrefix(prefix);
+			int i = 0;
+			while(scoreboard.getTeam("dt_" + i)!=null){
+				i++;
 			}
-			if(title.headsuffix != null){
-				String suffix = ChatStyler.setTotalStyle(title.headsuffix);
-				if(suffix.length()>16) suffix = suffix.substring(0, 16);
-				team.setSuffix(suffix);
+			team = scoreboard.registerNewTeam("dt_" + i);
+			if(prefix.headTag != null){
+				String p = ChatStyler.setTotalStyle(prefix.headTag);
+				if(p.length()>16) p = p.substring(0, 16);
+				team.setPrefix(p);
+			}
+			if(suffix.headTag != null){
+				String p = ChatStyler.setTotalStyle(suffix.headTag);
+				if(p.length()>16) p = p.substring(0, 16);
+				team.setSuffix(p);
 			}
 			// Set options to same as if not in team
 			team.setAllowFriendlyFire(true);
 			team.setCanSeeFriendlyInvisibles(false);
+			
+			teams.put(prefix.name + "-" + suffix.name, team);
 		}
 		
 		return team;
+	}
+
+	public void removePlayerFromTeam(Player player) {
+		removePlayerFromTeam(player, plugin.getPrefixOfPlayer(player), plugin.getSuffixOfPlayer(player));
 	}
 
 	/**
@@ -52,34 +70,52 @@ public class TeamManager {
 	 * @param title
 	 * @require title!=null
 	 */
-	public void removePlayerFromTeam(Player player, Title title) {
-		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
-		
-		Team team = scoreboard.getTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
+	public void removePlayerFromTeam(Player player, Title prefix, Title suffix) {
+		if(prefix==null && suffix==null) return;
+		String prefixName = prefix==null ? "" : prefix.name;
+		String suffixName = suffix==null ? "" : suffix.name;
+		Team team = teams.get(prefixName + "-" + suffixName);
 		if(team!=null){
 			team.removePlayer(player);
 			// Cleanup
 			if(team.getSize()==0){
-				team.unregister();
+				removeTeam(team);
 			}
 		}
+	}
+
+	private void removeTeam(Team team) {
+		String key = null;
+		Iterator<Entry<String, Team>> it = teams.entrySet().iterator();
+		Entry<String, Team> entry;
+		while(it.hasNext() && key==null){
+			entry = it.next();
+			if(entry.getValue().equals(team)){
+				key=entry.getKey();
+			}
+		}
+		
+		if(key!=null) teams.remove(key);
+		team.unregister();
 	}
 
 	/**
 	 * Reload the prefixes and suffixes of the teams
 	 */
-	public void reloadTags() {
-		Set<Title> titles = plugin.getTitles();
-		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
-		Team team;
+	public void reloadTags() {		
+		// Remove all teams
+		cleanUpTeams(true);
 		
-		for(Title title : titles){
-			team = scoreboard.getTeam("dt_" + (title.name.length()>13 ? title.name.substring(0, 13) : title.name));
-			if(team!=null){
-				if(title.headprefix != null) team.setPrefix(ChatStyler.setTotalStyle(title.headprefix));
-				if(title.headsuffix != null) team.setSuffix(ChatStyler.setTotalStyle(title.headsuffix));
+		// Recreate all teams
+		if(plugin.getConfig().getBoolean("general.use_nametag")){
+			for(Player player : plugin.getServer().getOnlinePlayers()){
+				Title prefix = plugin.getPrefixOfPlayer(player);
+				Title suffix = plugin.getSuffixOfPlayer(player);
+				if(prefix!=null || suffix!=null){
+					plugin.getTeamManager().getTeam(prefix, suffix).addPlayer(player);
+				}
 			}
-		}	
+		}
 	}
 	
 	/**
@@ -87,27 +123,38 @@ public class TeamManager {
 	 * @param force Remove all teams, even if there are still players in it.
 	 */
 	public void cleanUpTeams(boolean force){
-		Set<Title> titles = plugin.getTitles();
 		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
 		
 		for(Team team : scoreboard.getTeams()){
 			if(team.getName().startsWith("dt_")){
 				if(team.getSize()==0 || force){
 					// Nobody in team, or everything should be removed
-					team.unregister();
+					removeTeam(team);
 				}else{
 					// There is somebody in the team, but maybe it is not a valid team,
 					// because the title could be renamed or removed
 					
 					// Find corresponding title
-					String name = team.getName().substring(8);
 					boolean found = false;
-					for(Title title : titles){
-						if(title.name.equals(name)) found = true;
+					Iterator<Title> prefixIterator = plugin.getPrefixes().iterator();
+					Title prefix;
+					while(prefixIterator.hasNext() && !found){
+						prefix = prefixIterator.next();
+						if(team.getPrefix().equals(ChatStyler.setTotalStyle(prefix.headTag))){
+							Iterator<Title> suffixIterator = plugin.getSuffixes().iterator();
+							Title suffix;
+							while(suffixIterator.hasNext() && !found){
+								suffix = suffixIterator.next();
+								if(team.getSuffix().equals(ChatStyler.setTotalStyle(suffix.headTag))){
+									found = true;
+								}
+							}
+						}
 					}
+					
 					if(!found){
 						// Title is removed, but team still exists
-						team.unregister();
+						removeTeam(team);
 					}
 				}
 			}

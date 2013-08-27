@@ -4,20 +4,23 @@ package denniss17.dsTitle;
  * Class representing a single title
  */
 class Title implements Comparable<Title>{
+	enum Type {PREFIX, SUFFIX};
 	public String name;
-	public String prefix;
+	public Type type;
+	public String chatTag;
+	public String headTag;
+	/*public String prefix;
 	public String suffix;
 	public String headprefix;
-	public String headsuffix;
+	public String headsuffix;*/
 	public String permission;
 	public String description;
 	
-	public Title(String name, String prefix, String suffix, String headprefix, String headsuffix, String permission, String description){
+	public Title(String name, Type type, String chatTag, String headTag, String permission, String description){
 		this.name = name;
-		this.prefix = prefix;
-		this.suffix = suffix;
-		this.headprefix = headprefix;
-		this.headsuffix = headsuffix;
+		this.type = type;
+		this.chatTag = chatTag;
+		this.headTag = headTag;
 		this.permission = permission;
 		this.description = description;
 	}
