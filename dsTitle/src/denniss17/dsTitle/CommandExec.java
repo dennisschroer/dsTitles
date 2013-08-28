@@ -245,11 +245,11 @@ public class CommandExec implements CommandExecutor{
 				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
 				Title title = type.equals(Type.SUFFIX) ? plugin.getSuffix(args[3]) : plugin.getPrefix(args[3]);
 				if(title!=null){
-					plugin.getPermissionManager().getVaultPermissionInstance().playerAdd((String)null, args[1], title.permission);
+					plugin.getPermissionManager().getVaultPermissionInstance().playerAdd((String)null, args[2], title.permission);
 					if(type.equals(Type.PREFIX)){
-						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_granted").replace("{title}", title.name).replace("{name}", args[1]));
+						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_granted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
-						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_granted").replace("{title}", title.name).replace("{name}", args[1]));
+						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_granted").replace("{title}", title.name).replace("{name}", args[2]));
 					}
 				}else{
 					if(type.equals(Type.PREFIX)){
@@ -276,11 +276,11 @@ public class CommandExec implements CommandExecutor{
 				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
 				Title title = type.equals(Type.SUFFIX) ? plugin.getSuffix(args[3]) : plugin.getPrefix(args[3]);
 				if(title!=null){
-					plugin.getPermissionManager().getVaultPermissionInstance().playerRemove((String)null, args[1], title.permission);
+					plugin.getPermissionManager().getVaultPermissionInstance().playerRemove((String)null, args[2], title.permission);
 					if(type.equals(Type.PREFIX)){
-						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_ungranted").replace("{title}", title.name).replace("{name}", args[1]));
+						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_ungranted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
-						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_ungranted").replace("{title}", title.name).replace("{name}", args[1]));
+						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_ungranted").replace("{title}", title.name).replace("{name}", args[2]));
 					}
 				}else{
 					if(type.equals(Type.PREFIX)){
