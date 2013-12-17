@@ -12,11 +12,11 @@ import org.bukkit.scoreboard.Team;
 import denniss17.dsTitle.Title;
 
 public class TeamManager {	
-	private DS_Title plugin;
+	private DSTitle plugin;
 	
 	private Map<String, Team> teams;
 	
-	public TeamManager(DS_Title plugin) {
+	public TeamManager(DSTitle plugin) {
 		this.plugin = plugin;
 		this.teams = new HashMap<String, Team>();
 	}

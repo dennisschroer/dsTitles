@@ -14,9 +14,9 @@ import denniss17.dsTitle.Title.Type;
 
 public class CommandExec implements CommandExecutor{
 
-	private DS_Title plugin;
+	private DSTitle plugin;
 	
-	public CommandExec(DS_Title plugin) {
+	public CommandExec(DSTitle plugin) {
 		this.plugin = plugin;
 	}
 	

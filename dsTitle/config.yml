@@ -25,6 +25,8 @@ general:
   use_deprecated_listener: false
   # Should the plugin show all unavailable titles when a player does /title list ?
   show_unavailable_titles: true
+  # Should chat title be enabled?
+  use_chattag: true
   # Should the plugin also change the tags above the heads of players?
   # These will be set to the values of headprefix and headsuffix in titleConfig.yml
   # Disable this if you have another plugin which handles this or uses teams of the Bukkit scoreboard api.

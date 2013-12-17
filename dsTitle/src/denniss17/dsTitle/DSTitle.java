@@ -22,7 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import denniss17.dsTitle.Title.Type;
 
 
-public class DS_Title extends JavaPlugin{	
+public class DSTitle extends JavaPlugin{	
 	private FileConfiguration titleConfig = null;
 	private File titleConfigFile = null;
 	private PermissionManager permissionManager;
@@ -72,7 +72,7 @@ public class DS_Title extends JavaPlugin{
 	 * Activate the versionCheckerThread to run on a timer
 	 */
 	private void activateVersionChecker(){
-		this.getServer().getScheduler().runTaskTimerAsynchronously(this, DS_Title.versionChecker, 0, this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+		this.getServer().getScheduler().runTaskTimerAsynchronously(this, DSTitle.versionChecker, 0, this.getConfig().getInt("general.update_check_interval") * 60 * 20);
 	}
 	
 	/**
