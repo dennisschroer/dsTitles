@@ -10,6 +10,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
@@ -79,6 +80,7 @@ public class DSTitle extends JavaPlugin{
 	 * Reload the configuration
 	 */
 	public void reloadConfiguration(){
+		// Reload config
 		this.reloadConfig();
 		this.reloadTitleConfig();
 		
@@ -86,9 +88,12 @@ public class DSTitle extends JavaPlugin{
 		this.getConfig().options().copyDefaults(true);
         this.saveConfig();	
         
+        // Reset buffers
         PlayerListener.prefixTag = getConfig().getString("general.chat_format_prefix_tag", "[titleprefix]");
 		PlayerListener.suffixTag = getConfig().getString("general.chat_format_suffix_tag", "[titlesuffix]");
 		PlayerListener.playerTag = getConfig().getString("general.chat_format_player_tag", "%1$s");
+		prefixBuffer.clear();
+		suffixBuffer.clear();
 	}
 	
 	/**
@@ -108,8 +113,8 @@ public class DSTitle extends JavaPlugin{
 	 * @param playername
 	 * @return Title
 	 */
-	public Title getPrefixOfPlayer(Player player){
-		return getPrefix(titleConfig.getString("players." + player.getName() + ".prefix", ""));
+	public Title getPrefixOfPlayer(OfflinePlayer target){
+		return getPrefix(titleConfig.getString("players." + target.getName() + ".prefix", ""));
 	}
 	
 	/**
@@ -117,38 +122,38 @@ public class DSTitle extends JavaPlugin{
 	 * @param playername
 	 * @return Title
 	 */
-	public Title getSuffixOfPlayer(Player player){
-		return getSuffix(titleConfig.getString("players." + player.getName() + ".suffix", ""));
+	public Title getSuffixOfPlayer(OfflinePlayer target){
+		return getSuffix(titleConfig.getString("players." + target.getName() + ".suffix", ""));
 	}
 	
 	/**
 	 * Set the prefix of the player to the given Title
-	 * @param player The Player for who to set the Title
+	 * @param target The Player for who to set the Title
 	 * @param title The Title to set
 	 */
-	public void setPrefixOfPlayer(Player player, Title title){
+	public void setPrefixOfPlayer(OfflinePlayer target, Title title){
 		// Set tag above player
 		if(getConfig().getBoolean("general.use_nametag")){
-			teamManager.getTeam(title, getSuffixOfPlayer(player)).addPlayer(player);
+			teamManager.getTeam(title, getSuffixOfPlayer(target)).addPlayer(target);
 		}
 		// Set tag in chat
-		titleConfig.set("players." + player.getName() + ".prefix", title.name);
+		titleConfig.set("players." + target.getName() + ".prefix", title.name);
 		// Save to file
 		saveTitleConfig();
 	}
 	
 	/**
 	 * Set the suffix of the player to the given Title
-	 * @param player The Player for who to set the Title
+	 * @param target The Player for who to set the Title
 	 * @param title The Title to set
 	 */
-	public void setSuffixOfPlayer(Player player, Title title){
+	public void setSuffixOfPlayer(OfflinePlayer target, Title title){
 		// Set tag above player
 		if(getConfig().getBoolean("general.use_nametag")){
-			teamManager.getTeam(getPrefixOfPlayer(player), title).addPlayer(player);
+			teamManager.getTeam(getPrefixOfPlayer(target), title).addPlayer(target);
 		}
 		// Set tag in chat
-		titleConfig.set("players." + player.getName() + ".suffix", title.name);
+		titleConfig.set("players." + target.getName() + ".suffix", title.name);
 		// Save to file
 		saveTitleConfig();
 	}
@@ -167,6 +172,33 @@ public class DSTitle extends JavaPlugin{
 		saveTitleConfig();
 	}
 	
+	public Title loadTitle(String name, Type type){
+		if(name==null||name.equals("")){
+			return null;
+		}
+		ConfigurationSection titleSection;
+		if(type.equals(Type.PREFIX)){
+			titleSection = titleConfig.getConfigurationSection("prefixes." + name);
+		}else{
+			titleSection = titleConfig.getConfigurationSection("suffixes." + name);
+		}
+		if(titleSection!=null){
+			String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
+			String description = titleSection.contains("description") ? titleSection.getString("description") : null;
+			String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
+			String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
+			if(headTag!=null && headTag.length() >16){
+				getLogger().warning("Title  '" + name + "' of type " + type + "has been disabled!");
+				getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
+				return null;
+			}			
+			return new Title(name, type, chatTag, headTag, permission, description);
+		}else{
+			this.getLogger().warning(name + "' not good configured and can't be used!");
+			return null;
+		}
+	}
+	
 	/**
 	 * Load a suffix from config
 	 * @param name The name of the suffix
@@ -178,22 +210,8 @@ public class DSTitle extends JavaPlugin{
 			return null;
 		}
 		if(!suffixBuffer.containsKey(name)){
-			ConfigurationSection titleSection = titleConfig.getConfigurationSection("suffixes." + name);
-			if(titleSection!=null){
-				String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
-				String description = titleSection.contains("description") ? titleSection.getString("description") : null;
-				String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
-				String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
-				if(headTag!=null && headTag.length() >16){
-					getLogger().warning("Suffix  '" + name + "' has been disabled!");
-					getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
-					return null;
-				}			
-				suffixBuffer.put(name, new Title(name, Type.PREFIX, chatTag, headTag, permission, description));
-			}else{
-				this.getLogger().warning("Suffix '" + name + "' not good configured and can't be used!");
-				return null;
-			}
+			Title title = loadTitle(name, Type.SUFFIX);
+			if(title!=null) suffixBuffer.put(name, title);
 		}
 		return suffixBuffer.get(name);
 	}
@@ -209,26 +227,36 @@ public class DSTitle extends JavaPlugin{
 			return null;
 		}
 		if(!prefixBuffer.containsKey(name)){
-			ConfigurationSection titleSection = titleConfig.getConfigurationSection("prefixes." + name);
-			if(titleSection!=null){
-				String permission = titleSection.contains("permission") ? titleSection.getString("permission") : null;
-				String description = titleSection.contains("description") ? titleSection.getString("description") : null;
-				String chatTag = 	titleSection.contains("chattag") 	? titleSection.getString("chattag") 		: null;
-				String headTag = 	titleSection.contains("headtag") 	? titleSection.getString("headtag") 		: null;
-				if(
-						(headTag!=null && headTag.length() >16)
-						){
-					getLogger().warning("Prefix  '" + name + "' has been disabled!");
-					getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
-					return null;
-				}			
-				prefixBuffer.put(name, new Title(name, Type.PREFIX, chatTag, headTag, permission, description));
-			}else{
-				this.getLogger().warning("Prefix '" + name + "' not good configured and can't be used!");
-				return null;
-			}
+			Title title = loadTitle(name, Type.PREFIX);
+			if(title!=null) prefixBuffer.put(name, title);
 		}
 		return prefixBuffer.get(name);
+	}
+	
+	public void saveTitle(Title title){
+		// Get path
+		String path;
+		if(title.type.equals(Type.PREFIX)){
+			path = "prefixes." + title.name + ".";
+		}else{
+			path = "suffixes." + title.name + ".";
+		}
+		
+		// Save title
+		getTitleConfig().set(path + "permission", title.permission);
+		getTitleConfig().set(path + "description", title.description);
+		getTitleConfig().set(path + "chattag", title.chatTag);
+		getTitleConfig().set(path + "headtag", title.headTag);
+		
+		// Remove from buffer if needed. This reloads chattag
+		if(title.type.equals(Type.PREFIX)){
+			prefixBuffer.remove(title.name);
+		}else{
+			suffixBuffer.remove(title.name);
+		}
+		
+		// Reload headtags
+		teamManager.reloadTags();
 	}
 	
 	/**
