@@ -134,9 +134,9 @@ public class CommandExec implements CommandExecutor{
 		
 		// Fetch args
 		String name = args[2];
-		String field = args[4];
+		String field = args[3];
 		String value = "";
-		for(int i=5; i<args.length; i++){
+		for(int i=4; i<args.length; i++){
 			value+= args[i] + " ";
 		}
 		value = value.trim();

@@ -247,6 +247,8 @@ public class DSTitle extends JavaPlugin{
 		getTitleConfig().set(path + "chattag", title.chatTag);
 		getTitleConfig().set(path + "headtag", title.headTag);
 		
+		saveTitleConfig();
+		
 		// Remove from buffer if needed. This reloads chattag
 		if(title.type.equals(Type.PREFIX)){
 			prefixBuffer.remove(title.name);
