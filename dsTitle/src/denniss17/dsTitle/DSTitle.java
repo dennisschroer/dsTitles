@@ -16,7 +16,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -162,13 +161,13 @@ public class DSTitle extends JavaPlugin{
 	 * Clear the title of this player
 	 * @param playername
 	 */
-	public void clearTitleOfPlayer(Player player){
-		if(getConfig().getBoolean("general.use_nametag")){
-			Title prefix = getPrefixOfPlayer(player);
-			Title suffix = getSuffixOfPlayer(player);
-			if(prefix!=null || suffix!=null) teamManager.removePlayerFromTeam(player, prefix, suffix);
+	public void clearTitleOfPlayer(OfflinePlayer target){
+		if(getConfig().getBoolean("general.use_nametag") && target.isOnline()){
+			Title prefix = getPrefixOfPlayer(target);
+			Title suffix = getSuffixOfPlayer(target);
+			if(prefix!=null || suffix!=null) teamManager.removePlayerFromTeam(target.getPlayer(), prefix, suffix);
 		}
-		titleConfig.set("players." + player.getName(), null);
+		titleConfig.set("players." + target.getName(), null);
 		saveTitleConfig();
 	}
 	

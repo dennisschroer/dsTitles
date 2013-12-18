@@ -317,7 +317,8 @@ public class CommandExec implements CommandExecutor{
 		return true;
 	}
 	
-	private boolean cmdTitleClear(CommandSender sender, Command cmd, String commandlabel, String[] args){
+	private boolean cmdTitleClear(CommandSender sender, Command cmd, String commandlabel, String[] args){		
+		// Check if player
 		Player player;
 		if(sender instanceof Player){
 			player = (Player)sender;
@@ -326,8 +327,24 @@ public class CommandExec implements CommandExecutor{
 			return true;
 		}
 		
+		// Get target
+		OfflinePlayer target = (args.length>1) ? plugin.getServer().getOfflinePlayer(args[1]) : player;
 		
-		plugin.clearTitleOfPlayer(player);
+		// Check permission
+		if(target.equals(player.getName())){
+			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.clear.self")){
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+				return true;
+			}
+		}else{
+			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.clear.other")){
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+				return true;
+			}
+		}
+		
+		// Clear title
+		plugin.clearTitleOfPlayer(target);
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_cleared"));
 		
 		return true;
@@ -350,7 +367,7 @@ public class CommandExec implements CommandExecutor{
 	}
 	
 	private boolean cmdTitleGrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
-		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.admin")){
+		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.grant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){
 				if(args.length<4) return false;
 				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
@@ -381,7 +398,7 @@ public class CommandExec implements CommandExecutor{
 	}
 	
 	private boolean cmdTitleUngrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
-		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.admin")){
+		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.ungrant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){
 				if(args.length<4) return false;
 				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
