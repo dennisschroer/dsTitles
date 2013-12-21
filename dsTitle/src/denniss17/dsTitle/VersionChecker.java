@@ -25,7 +25,6 @@ public class VersionChecker implements Runnable{
 
     // Keys for extracting file information from JSON response
     private static final String API_NAME_VALUE = "name";
-    private static final String API_LINK_VALUE = "downloadUrl";
 
     // Static information for querying the API
     private static final String API_QUERY = "/servermods/files?projectIds=";
@@ -34,7 +33,6 @@ public class VersionChecker implements Runnable{
     private static final String API_KEY = "c109062c5aec1ea72299683c97f4e9cc3fce4604";
 	
 	public String versionName = null;
-	public String versionLink = null;
 	private JavaPlugin plugin;
 	
 	public VersionChecker(JavaPlugin plugin, int projectID){
@@ -48,14 +46,6 @@ public class VersionChecker implements Runnable{
 	 */
 	public String getLatestVersionName(){
 		return this.versionName;
-	}
-	
-	/**
-	 * Returns the link to the latest file of this plugin, or null if unknown
-	 * @return The link to the latest file or null
-	 */
-	public String getLatestVersionLink(){
-		return this.versionLink;
 	}
 	
 	/** 
@@ -110,14 +100,11 @@ public class VersionChecker implements Runnable{
 
                 // Get the version's title
                 versionName = (String) latest.get(API_NAME_VALUE);
-
-                // Get the version's link
-                versionLink = (String) latest.get(API_LINK_VALUE);
                 
                 if(versionName.equals(plugin.getDescription().getVersion())){
                 	plugin.getLogger().info("You have the latest version.");
                 }else{
-                	plugin.getLogger().info("There is a new version (" + versionName + ") available. Download it here: " + versionLink);
+                	plugin.getLogger().info("There is a new version (" + versionName + ") available. Download it here: " + plugin.getDescription().getWebsite());
                 }
             }
         } catch (IOException e) {
