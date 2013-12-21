@@ -27,7 +27,11 @@ public class DSTitle extends JavaPlugin{
 	private File titleConfigFile = null;
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
+	
+	private static final int projectID = 51865;
 	public static VersionChecker versionChecker;
+	
+	
 	public Map<String, Title> prefixBuffer;
 	public Map<String, Title> suffixBuffer;
 
@@ -49,7 +53,6 @@ public class DSTitle extends JavaPlugin{
 		
 		this.permissionManager = new PermissionManager(this);
 		this.teamManager = new TeamManager(this);
-		versionChecker = new VersionChecker(this);
 		
 		// Load the config values
 		reloadConfiguration();	
@@ -72,7 +75,8 @@ public class DSTitle extends JavaPlugin{
 	 * Activate the versionCheckerThread to run on a timer
 	 */
 	private void activateVersionChecker(){
-		this.getServer().getScheduler().runTaskTimerAsynchronously(this, DSTitle.versionChecker, 0, this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+		versionChecker = new VersionChecker(this, projectID);
+		versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
 	}
 	
 	/**
