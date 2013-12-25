@@ -29,15 +29,20 @@ public class VersionChecker implements Runnable{
     // Static information for querying the API
     private static final String API_QUERY = "/servermods/files?projectIds=";
     private static final String API_HOST = "https://api.curseforge.com";
-    
-    private static final String API_KEY = "c109062c5aec1ea72299683c97f4e9cc3fce4604";
 	
 	public String versionName = null;
+	private String apiKey = null;
 	private JavaPlugin plugin;
 	
 	public VersionChecker(JavaPlugin plugin, int projectID){
 		this.plugin = plugin;
 		this.projectID = projectID;
+	}
+	
+	public VersionChecker(JavaPlugin plugin, int projectID, String apiKey){
+		this.plugin = plugin;
+		this.projectID = projectID;
+		this.apiKey = apiKey;
 	}
 	
 	/**
@@ -78,9 +83,9 @@ public class VersionChecker implements Runnable{
             // Open a connection and query the project
             URLConnection conn = url.openConnection();
 
-            if (API_KEY != null) {
+            if (apiKey != null) {
                 // Add the API key to the request if present
-                conn.addRequestProperty("X-API-Key", API_KEY);
+                conn.addRequestProperty("X-API-Key", apiKey);
             }
 
             // Add the user-agent to identify the program
