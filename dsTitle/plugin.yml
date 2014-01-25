@@ -35,7 +35,7 @@ permissions:
         ds_title.prefix.self: true
         ds_title.suffix.self: true
         ds_title.prefix.list: true
-        ds_title.prefix.list: true
+        ds_title.suffix.list: true
         ds_title.clear.self: true
    ds_title.prefix:
       description: Gives access to changing prefix
