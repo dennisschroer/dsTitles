@@ -87,7 +87,6 @@ public class SQLTitleStorage extends TitleStorage {
 
             if(result.next())
             {
-                plugin.getLogger().info("Hello1");
                 prefix = result.getString("prefix");
                 suffix = result.getString("suffix");
             }

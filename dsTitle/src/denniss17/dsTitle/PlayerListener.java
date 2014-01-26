@@ -77,10 +77,8 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerJoin(PlayerJoinEvent event){
 
-        plugin.getLogger().info("Hello-1");
         // When a Player Joins, grab the Title
         plugin.getStorage().loadTitlesPlayer(event.getPlayer());
-        plugin.getLogger().info("Hello-2");
 		
 		// Check for update and send message
 		if(plugin.getPermissionManager().hasPermission(event.getPlayer(), "ds_title.admin")){

@@ -156,20 +156,14 @@ public class TitleManager {
      */
     public void setPlayerPrefix(String title,OfflinePlayer target)
     {
-        if (!prefixes.containsKey(title)){
-            if (title != null)
-                plugin.getLogger().info("prefix: " + title);
-            else
-                plugin.getLogger().info("Hello2!");
-
-            return;
-        }
+        plugin.getLogger().info("prefix: " + title);
+        if (!prefixes.containsKey(title)) return;
         if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
             Title tit = getPrefix(title);
             plugin.getTeamManager().getTeam(tit, getPlayerSuffix(target)).addPlayer(target);
         }
-        playerSuffixes.put(target.getName(), title);
+        playerPrefixes.put(target.getName(), title);
     }
 
     /**

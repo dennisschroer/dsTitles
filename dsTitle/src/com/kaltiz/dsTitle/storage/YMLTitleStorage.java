@@ -48,7 +48,7 @@ public class YMLTitleStorage extends TitleStorage {
         if (prefix != null)
             playersConfig.set("players." + target.getName() + ".prefix", prefix.name);
         if (suffix != null)
-            playersConfig.set("players." + target.getName() + ".suffix", suffix.name);
+        playersConfig.set("players." + target.getName() + ".suffix", suffix.name);
 
         // Save to file
         savePlayerConfig();

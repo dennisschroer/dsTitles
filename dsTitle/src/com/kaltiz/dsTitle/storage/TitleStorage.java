@@ -10,7 +10,7 @@ public abstract class TitleStorage {
     DSTitle plugin;
     TitleManager manager;
 
-    public TitleStorage(DSTitle pluign, TitleManager manager)
+    public TitleStorage(DSTitle plugin, TitleManager manager)
     {
         this.plugin = plugin;
         this.manager = manager;

@@ -53,6 +53,8 @@ public class DSTitle extends JavaPlugin{
 		if(this.getConfig().getBoolean("general.check_for_updates")){
 			activateVersionChecker();
         }
+
+        this.getLogger().info("Loaded!");
 	}
 	
 	/**
