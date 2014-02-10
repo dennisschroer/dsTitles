@@ -36,12 +36,20 @@ general:
   # The time between two checks for a new version, in minutes (default 180 = 3 hours)
   update_check_interval: 180
 storage:
+  # Storage type to store titles of player
+  # Possible values: 'file' and 'database'
   type: file
+  # The name of the file to use when storing titles in a file
   file: players.yml
+  # Database settings
   database:
+    # Database driver. Possible values: H2, MYSQL, POSTGRE, SQLITE
     driver: ''
+    # Url of the database, or filename in case of SQLITE
     url: ''
+    # Username for database. Not needed when using SQLITE
     username: ''
+    # Password for database. Not needed when using SQLITE
     password: ''
 messages:
   # I think this doesn't need explanation

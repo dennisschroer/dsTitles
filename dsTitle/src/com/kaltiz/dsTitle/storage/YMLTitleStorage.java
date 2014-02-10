@@ -35,8 +35,8 @@ public class YMLTitleStorage extends TitleStorage {
     @Override
     public void loadTitlesPlayer(OfflinePlayer target)
     {
-        manager.setPlayerPrefix(playersConfig.getString("players." + target.getName() + ".prefix", ""), target);
-        manager.setPlayerSuffix(playersConfig.getString("players." + target.getName() + ".suffix", ""), target);
+        manager.setPlayerPrefix(playersConfig.getString("players." + target.getName() + ".prefix"), target);
+        manager.setPlayerSuffix(playersConfig.getString("players." + target.getName() + ".suffix"), target);
     }
 
     @Override
@@ -45,10 +45,9 @@ public class YMLTitleStorage extends TitleStorage {
         Title prefix = manager.getPlayerPrefix(target);
         Title suffix = manager.getPlayerSuffix(target);
 
-        if (prefix != null)
-            playersConfig.set("players." + target.getName() + ".prefix", prefix.name);
-        if (suffix != null)
-        playersConfig.set("players." + target.getName() + ".suffix", suffix.name);
+        // Titles can also be null
+        playersConfig.set("players." + target.getName() + ".prefix", prefix==null ? null : prefix.name);
+        playersConfig.set("players." + target.getName() + ".suffix", suffix==null ? null : suffix.name);
 
         // Save to file
         savePlayerConfig();

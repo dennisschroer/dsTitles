@@ -77,8 +77,8 @@ public class SQLTitleStorage extends TitleStorage {
     @Override
     public void loadTitlesPlayer(OfflinePlayer target)
     {
-        String prefix = "";
-        String suffix = "";
+        String prefix = null;
+        String suffix = null;
         String qry = "SELECT * FROM `players` WHERE `name` = ?;";
         try {
             PreparedStatement stmt = this.getConnection().prepareStatement(qry);
@@ -106,8 +106,8 @@ public class SQLTitleStorage extends TitleStorage {
         Title p = manager.getPlayerPrefix(target);
         Title s = manager.getPlayerSuffix(target);
 
-        String prefix = p == null ? "" : p.name;
-        String suffix = s == null ? "" : s.name;
+        String prefix = p == null ? null : p.name;
+        String suffix = s == null ? null : s.name;
 
         // Check if the Player has an Existing Row
         try{

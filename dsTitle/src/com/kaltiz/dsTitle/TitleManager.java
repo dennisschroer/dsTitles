@@ -119,7 +119,7 @@ public class TitleManager {
     /**
      * Get the Title a player has set currently as prefix
      * @param target the player
-     * @return Title
+     * @return Title or null if the player has no prefix
      */
     public Title getPlayerPrefix(OfflinePlayer target)
     {
@@ -135,7 +135,7 @@ public class TitleManager {
     /**
      * Get the Title a player has set currently as suffix
      * @param target the player
-     * @return Title
+     * @return Title or null if the player has no suffix
      */
     public Title getPlayerSuffix(OfflinePlayer target)
     {
@@ -159,7 +159,11 @@ public class TitleManager {
         {
             plugin.getTeamManager().getTeam(title, getPlayerSuffix(target)).addPlayer(target);
         }
-        playerPrefixes.put(target.getName(), title.name);
+        if(title==null){
+        	playerPrefixes.remove(target.getName());
+        }else{
+        	playerPrefixes.put(target.getName(), title.name);
+        }
     }
 
     /**
@@ -167,16 +171,22 @@ public class TitleManager {
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerPrefix(String title,OfflinePlayer target)
+    public void setPlayerPrefix(String title, OfflinePlayer target)
     {
         plugin.getLogger().info("prefix: " + title);
-        if (!prefixes.containsKey(title)) return;
-        if(plugin.getConfig().getBoolean("general.use_nametag"))
-        {
-            Title tit = getPrefix(title);
-            plugin.getTeamManager().getTeam(tit, getPlayerSuffix(target)).addPlayer(target);
+        if(title==null){
+        	// Clear prefix
+        	plugin.getTeamManager().getTeam(null, getPlayerSuffix(target)).addPlayer(target);
+        	playerPrefixes.remove(target.getName());
+        }else{
+        	if (!prefixes.containsKey(title)) return;
+            if(plugin.getConfig().getBoolean("general.use_nametag"))
+            {
+                Title tit = getPrefix(title);
+                plugin.getTeamManager().getTeam(tit, getPlayerSuffix(target)).addPlayer(target);
+            }
+            playerPrefixes.put(target.getName(), title);
         }
-        playerPrefixes.put(target.getName(), title);
     }
 
     /**
@@ -184,13 +194,17 @@ public class TitleManager {
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerSuffix(Title title,OfflinePlayer target)
+    public void setPlayerSuffix(Title title, OfflinePlayer target)
     {
-        if(plugin.getConfig().getBoolean("general.use_nametag"))
+    	if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
             plugin.getTeamManager().getTeam(getPlayerPrefix(target), title).addPlayer(target);
         }
-        playerSuffixes.put(target.getName(), title.name);
+        if(title==null){
+        	playerSuffixes.remove(target.getName());
+        }else{
+        	playerSuffixes.put(target.getName(), title.name);
+        }
     }
 
     /**
@@ -200,13 +214,20 @@ public class TitleManager {
      */
     public void setPlayerSuffix(String title,OfflinePlayer target)
     {
-        if (!suffixes.containsKey(title)) return;
-        if(plugin.getConfig().getBoolean("general.use_nametag"))
-        {
-            Title tit = getSuffix(title);
-            plugin.getTeamManager().getTeam(getPlayerPrefix(target), tit).addPlayer(target);
+    	plugin.getLogger().info("suffix: " + title);
+        if(title==null){
+        	// Clear prefix
+        	plugin.getTeamManager().getTeam(getPlayerPrefix(target), null).addPlayer(target);
+        	playerSuffixes.remove(target.getName());
+        }else{
+        	if (!suffixes.containsKey(title)) return;
+            if(plugin.getConfig().getBoolean("general.use_nametag"))
+            {
+                Title tit = getSuffix(title);
+                plugin.getTeamManager().getTeam(getPlayerPrefix(target), tit).addPlayer(target);
+            }
+            playerSuffixes.put(target.getName(), title);
         }
-        playerSuffixes.put(target.getName(), title);
     }
 
     /**
