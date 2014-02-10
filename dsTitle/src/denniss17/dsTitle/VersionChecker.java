@@ -16,6 +16,8 @@ import org.json.simple.JSONValue;
  * VersionChecker v 1.2
  * This generic class is used to check for updates of the corresponding plugin.
  * It is compatible with every plugin
+ * This class is now using the ServerMods API
+ * @link http://wiki.bukkit.org/ServerMods_API
  * @author Denniss17
  * @version 1.2.0
  */
