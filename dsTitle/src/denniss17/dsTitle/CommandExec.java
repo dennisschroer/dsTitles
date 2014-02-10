@@ -26,7 +26,7 @@ public class CommandExec implements CommandExecutor{
 		if(cmd.getName().equals("title")){
 			return cmdTitle(sender, cmd, commandlabel, args);
 		}
-		return false;		
+		return false;
 	}
 	
 	/**
@@ -103,11 +103,11 @@ public class CommandExec implements CommandExecutor{
 		
 		
 		// Check existence
-		if(type.equals(Type.PREFIX) && plugin.prefixExists(name)){
+		if(type.equals(Type.PREFIX) && plugin.getTitleManager().prefixExists(name)){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_exists"));
 			return true;
 		}
-		if(type.equals(Type.SUFFIX) && plugin.suffixExists(name)){
+		if(type.equals(Type.SUFFIX) && plugin.getTitleManager().suffixExists(name)){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_exists"));
 			return true;
 		}
@@ -116,7 +116,7 @@ public class CommandExec implements CommandExecutor{
 		Title title = new Title(name, type, null, null, null, null);
 		
 		// Save new title
-		plugin.saveTitle(title);
+        plugin.getTitleManager().saveTitle(title);
 		
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_added"));
 		
@@ -152,16 +152,16 @@ public class CommandExec implements CommandExecutor{
 		// Get title
 		Title title = null;
 		if(type.equals(Type.PREFIX)){
-			if (plugin.prefixExists(name)){
-				title=plugin.getPrefix(name);
+			if (plugin.getTitleManager().prefixExists(name)){
+				title=plugin.getTitleManager().getPrefix(name);
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_not_found"));
 				return true;
 			}
 		}
 		if(type.equals(Type.SUFFIX)){
-			if(plugin.suffixExists(name)){
-				title=plugin.getSuffix(name);
+			if(plugin.getTitleManager().suffixExists(name)){
+				title=plugin.getTitleManager().getSuffix(name);
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_not_found"));
 				return true;
@@ -186,7 +186,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		// Save title title
-		plugin.saveTitle(title);
+        plugin.getTitleManager().saveTitle(title);
 		
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_edited"));
 		
@@ -199,7 +199,7 @@ public class CommandExec implements CommandExecutor{
 			return true;
 		}
 		
-		SortedSet<Title> titles = plugin.getPrefixes();
+		SortedSet<Title> titles = plugin.getTitleManager().getPrefixes();
 		sendTitleList(sender, titles);
 		return true;
 	}
@@ -210,7 +210,7 @@ public class CommandExec implements CommandExecutor{
 			return true;
 		}
 		
-		SortedSet<Title> titles = plugin.getSuffixes();
+		SortedSet<Title> titles = plugin.getTitleManager().getSuffixes();
 		sendTitleList(sender, titles);
 		return true;
 	}
@@ -231,7 +231,7 @@ public class CommandExec implements CommandExecutor{
 		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
 		
 		// Check permission
-		if(target.equals(player.getName())){
+		if(target.getName().equals(player.getName())){
 			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.self")){
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
 				return true;
@@ -244,8 +244,8 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		// Check prefix
-		if(plugin.prefixExists(args[2])){
-			Title title = plugin.getPrefix(args[2]);
+		if(plugin.getTitleManager().prefixExists(args[2])){
+			Title title = plugin.getTitleManager().getPrefix(args[2]);
 			if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
 				// Clean up previous title
 				if(plugin.getConfig().getBoolean("general.use_nametag")){
@@ -253,7 +253,7 @@ public class CommandExec implements CommandExecutor{
 				}
 				
 				// Set new title
-				plugin.setPrefixOfPlayer(target, title);
+                plugin.getTitleManager().setPlayerPrefix(title, target);
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_set"));
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
@@ -282,7 +282,7 @@ public class CommandExec implements CommandExecutor{
 		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
 		
 		// Check permission
-		if(target.equals(player.getName())){
+		if(target.getName().equals(player.getName())){
 			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.self")){
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
 				return true;
@@ -295,8 +295,8 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		// Check suffix
-		if(plugin.suffixExists(args[2])){
-			Title title = plugin.getSuffix(args[2]);
+		if(plugin.getTitleManager().suffixExists(args[2])){
+			Title title = plugin.getTitleManager().getSuffix(args[2]);
 			if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
 				// Clean up previous title
 				if(plugin.getConfig().getBoolean("general.use_nametag")){
@@ -304,7 +304,7 @@ public class CommandExec implements CommandExecutor{
 				}
 				
 				// Set new title
-				plugin.setSuffixOfPlayer(target, title);
+                plugin.getTitleManager().setPlayerSuffix(title, target);
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
@@ -331,7 +331,7 @@ public class CommandExec implements CommandExecutor{
 		OfflinePlayer target = (args.length>1) ? plugin.getServer().getOfflinePlayer(args[1]) : player;
 		
 		// Check permission
-		if(target.equals(player.getName())){
+		if(target.getName().equals(player.getName())){
 			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.clear.self")){
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
 				return true;
@@ -344,7 +344,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		// Clear title
-		plugin.clearTitleOfPlayer(target);
+        plugin.getTitleManager().clearPlayerTitle(target);
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_cleared"));
 		
 		return true;
@@ -371,7 +371,7 @@ public class CommandExec implements CommandExecutor{
 			if(plugin.getPermissionManager().isVaultEnabled()){
 				if(args.length<4) return false;
 				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
-				Title title = type.equals(Type.SUFFIX) ? plugin.getSuffix(args[3]) : plugin.getPrefix(args[3]);
+				Title title = type.equals(Type.SUFFIX) ? plugin.getTitleManager().getSuffix(args[3]) : plugin.getTitleManager().getPrefix(args[3]);
 				if(title!=null){
 					plugin.getPermissionManager().getVaultPermissionInstance().playerAdd((String)null, args[2], title.permission);
 					if(type.equals(Type.PREFIX)){
@@ -402,7 +402,7 @@ public class CommandExec implements CommandExecutor{
 			if(plugin.getPermissionManager().isVaultEnabled()){
 				if(args.length<4) return false;
 				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
-				Title title = type.equals(Type.SUFFIX) ? plugin.getSuffix(args[3]) : plugin.getPrefix(args[3]);
+				Title title = type.equals(Type.SUFFIX) ? plugin.getTitleManager().getSuffix(args[3]) : plugin.getTitleManager().getPrefix(args[3]);
 				if(title!=null){
 					plugin.getPermissionManager().getVaultPermissionInstance().playerRemove((String)null, args[2], title.permission);
 					if(type.equals(Type.PREFIX)){

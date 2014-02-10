@@ -49,8 +49,8 @@ public class PlayerListener implements Listener {
 				if(!chatFormat.contains(suffixTag)) chatFormat = chatFormat.replace(playerTag, playerTag + suffixTag);
 			}
 		
-			Title prefix = plugin.getPrefixOfPlayer(player);
-			Title suffix = plugin.getSuffixOfPlayer(player);
+			Title prefix = plugin.getTitleManager().getPlayerPrefix(player);
+			Title suffix = plugin.getTitleManager().getPlayerSuffix(player);
 			if(prefix!=null){
 				if(!chatFormat.contains(prefixTag)){
 					chatFormat = chatFormat.replace(playerTag, prefix.chatTag + playerTag + "&r");
@@ -76,14 +76,9 @@ public class PlayerListener implements Listener {
     
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerJoin(PlayerJoinEvent event){
-		// Set tag above head
-		if(plugin.getConfig().getBoolean("general.use_nametag")){
-			Title prefix = plugin.getPrefixOfPlayer(event.getPlayer());
-			Title suffix = plugin.getSuffixOfPlayer(event.getPlayer());
-			if(prefix!=null || suffix!=null){
-				plugin.getTeamManager().getTeam(prefix, suffix).addPlayer(event.getPlayer());
-			}
-		}
+
+        // When a Player Joins, grab the Title
+        plugin.getStorage().loadTitlesPlayer(event.getPlayer());
 		
 		// Check for update and send message
 		if(plugin.getPermissionManager().hasPermission(event.getPlayer(), "ds_title.admin")){
@@ -103,5 +98,9 @@ public class PlayerListener implements Listener {
 		if(plugin.getConfig().getBoolean("general.use_nametag")){
 			plugin.getTeamManager().removePlayerFromTeam(event.getPlayer());
 		}
+
+        // Save Changes
+        plugin.getStorage().saveTitlesPlayer(event.getPlayer());
+
 	}
 }

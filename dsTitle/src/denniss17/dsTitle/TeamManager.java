@@ -23,7 +23,8 @@ public class TeamManager {
 
 	/**
 	 * Returns a Team with the right prefix and suffix
-	 * @param title The title to get prefix and suffix from
+	 * @param prefix The title to get prefix and suffix from
+     * @param suffix The title to get prefix and suffix from
 	 * @return the Team
 	 * @ensure result.getPrefix().equals(title.headprefix) && result.getSuffix().equals(title.headsuffix)
 	 */
@@ -61,13 +62,14 @@ public class TeamManager {
 	}
 
 	public void removePlayerFromTeam(Player player) {
-		removePlayerFromTeam(player, plugin.getPrefixOfPlayer(player), plugin.getSuffixOfPlayer(player));
+		removePlayerFromTeam(player, plugin.getTitleManager().getPlayerPrefix(player), plugin.getTitleManager().getPlayerSuffix(player));
 	}
 
 	/**
 	 * Remove the player from the team corresponding to the given title
 	 * @param player
-	 * @param title
+     * @param prefix The title to get prefix and suffix from
+     * @param suffix The title to get prefix and suffix from
 	 * @require title!=null
 	 */
 	public void removePlayerFromTeam(Player player, Title prefix, Title suffix) {
@@ -109,8 +111,8 @@ public class TeamManager {
 		// Recreate all teams
 		if(plugin.getConfig().getBoolean("general.use_nametag")){
 			for(Player player : plugin.getServer().getOnlinePlayers()){
-				Title prefix = plugin.getPrefixOfPlayer(player);
-				Title suffix = plugin.getSuffixOfPlayer(player);
+				Title prefix = plugin.getTitleManager().getPlayerPrefix(player);
+				Title suffix = plugin.getTitleManager().getPlayerSuffix(player);
 				if(prefix!=null || suffix!=null){
 					plugin.getTeamManager().getTeam(prefix, suffix).addPlayer(player);
 				}
@@ -136,12 +138,12 @@ public class TeamManager {
 					
 					// Find corresponding title
 					boolean found = false;
-					Iterator<Title> prefixIterator = plugin.getPrefixes().iterator();
+					Iterator<Title> prefixIterator = plugin.getTitleManager().getPrefixes().iterator();
 					Title prefix;
 					while(prefixIterator.hasNext() && !found){
 						prefix = prefixIterator.next();
 						if(prefix.headTag!=null && team.getPrefix().equals(ChatStyler.setTotalStyle(prefix.headTag))){
-							Iterator<Title> suffixIterator = plugin.getSuffixes().iterator();
+							Iterator<Title> suffixIterator = plugin.getTitleManager().getSuffixes().iterator();
 							Title suffix;
 							while(suffixIterator.hasNext() && !found){
 								suffix = suffixIterator.next();
