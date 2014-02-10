@@ -24,7 +24,11 @@ public class SQLTitleStorage extends TitleStorage {
         super(plugin,manager);
 
         this.driver = DatabaseType.match(plugin.getConfig().getString("storage.database.driver"));
-        this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url");
+        if(this.driver.equals(DatabaseType.SQLITE)){
+        	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
+        }else{
+        	this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url");
+        }
         this.username = plugin.getConfig().getString("storage.database.username");
         this.password = plugin.getConfig().getString("storage.database.password");
 
