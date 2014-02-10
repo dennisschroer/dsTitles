@@ -1,20 +1,22 @@
 package com.kaltiz.dsTitle;
 
-import denniss17.dsTitle.DSTitle;
-import denniss17.dsTitle.Title;
-import denniss17.dsTitle.Title.Type;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
+
+import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import denniss17.dsTitle.DSTitle;
+import denniss17.dsTitle.Title;
+import denniss17.dsTitle.Title.Type;
 
 /**
  * This class is responsible for managing titles of players.
@@ -48,6 +50,16 @@ public class TitleManager {
         this.plugin = plugin;
         titleConfigFile = new File(plugin.getDataFolder(), TITLE_CONFIG_FILENAME);
         titleConfig = YamlConfiguration.loadConfiguration(titleConfigFile);
+        
+        // Set correct keys in the file
+        InputStream defConfigStream = plugin.getResource(TITLE_CONFIG_FILENAME);
+        if (defConfigStream != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+            titleConfig.setDefaults(defConfig);
+        }
+    	titleConfig.options().copyDefaults(true);
+    	this.saveTitleConfig();
+    	
         prefixes.clear();
         suffixes.clear();
         loadTitles();
@@ -321,6 +333,14 @@ public class TitleManager {
             plugin.getLogger().log(Level.SEVERE, "Could not save config to " + titleConfigFile, ex);
         }
     }
+
+	public String getDefaultPrefix() {
+		return titleConfig.getString("default_prefix");
+	}
+
+	public String getDefaultSuffix() {
+		return titleConfig.getString("default_prefix");
+	}
 }
 
 

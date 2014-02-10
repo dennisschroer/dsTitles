@@ -88,8 +88,8 @@ public class SQLTitleStorage extends TitleStorage {
     @Override
     public void loadTitlesPlayer(OfflinePlayer target)
     {
-        String prefix = null;
-        String suffix = null;
+        String prefix = plugin.getTitleManager().getDefaultPrefix();
+        String suffix = plugin.getTitleManager().getDefaultSuffix();
         String qry = "SELECT * FROM `players` WHERE `name` = ?;";
         try {
             PreparedStatement stmt = this.getConnection().prepareStatement(qry);

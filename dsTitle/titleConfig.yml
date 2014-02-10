@@ -13,9 +13,15 @@
 #     headtag: <headtag>
 #     permission: <permission needed>
 #     description: <description>
+# default_prefix: <name>
+# default_suffix: <name>
 #
 # Chattag, headtag, permission and description are optional, although it is usefull
 # if at least one of chattag and headtag is set ;-)
 #
+#
+#
 prefixes: {}
 suffixes: {}
+default_prefix: ''
+default_suffix: ''

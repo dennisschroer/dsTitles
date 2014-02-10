@@ -35,8 +35,14 @@ public class YMLTitleStorage extends TitleStorage {
     @Override
     public void loadTitlesPlayer(OfflinePlayer target)
     {
-        manager.setPlayerPrefix(playersConfig.getString("players." + target.getName() + ".prefix"), target);
-        manager.setPlayerSuffix(playersConfig.getString("players." + target.getName() + ".suffix"), target);
+    	if(!playersConfig.contains("players." + target.getName())){
+    		// First join -> load default titles
+    		manager.setPlayerPrefix(plugin.getTitleManager().getDefaultPrefix(), target);
+    		manager.setPlayerSuffix(plugin.getTitleManager().getDefaultSuffix(), target);
+    	}else{
+    		manager.setPlayerPrefix(playersConfig.getString("players." + target.getName() + ".prefix"), target);
+            manager.setPlayerSuffix(playersConfig.getString("players." + target.getName() + ".suffix"), target);
+    	}
     }
 
     @Override
