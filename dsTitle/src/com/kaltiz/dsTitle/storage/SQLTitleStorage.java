@@ -1,8 +1,10 @@
 package com.kaltiz.dsTitle.storage;
 
 import com.kaltiz.dsTitle.TitleManager;
+
 import denniss17.dsTitle.DSTitle;
 import denniss17.dsTitle.Title;
+
 import org.bukkit.OfflinePlayer;
 
 import java.sql.*;
@@ -31,6 +33,10 @@ public class SQLTitleStorage extends TitleStorage {
         }
 
         this.conn = getConnection();
+        
+        if (conn==null) {
+            throw new SQLException("Couldn't connect to the database");
+        }
 
         // Create table
         String qry = "CREATE TABLE IF NOT EXISTS `players` (`name` VARCHAR(16) NOT NULL PRIMARY KEY, `prefix` VARCHAR(128), `suffix` VARCHAR(128));";
@@ -51,7 +57,7 @@ public class SQLTitleStorage extends TitleStorage {
         }
     }
 
-    private Connection getConnection() {
+    private Connection getConnection() throws SQLException{
         /*if (conn != null) {
             // Make a dummy query to check the connection is alive.
             try {
@@ -64,14 +70,15 @@ public class SQLTitleStorage extends TitleStorage {
 
             }
         }*/
-        try {
-            if (conn == null || conn.isClosed()) {
-                conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
-            }
-        } catch (SQLException ex) {
-        	plugin.getLogger().log(Level.SEVERE, "Could not connect to the database", ex);
+        if (conn == null || conn.isClosed()) {
+            conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
         }
+        // The connection could be null here (!)
         return conn;
+    }
+    
+    public void closeConnection() throws SQLException{
+    	 if (conn != null && !conn.isClosed()) conn.close();
     }
 
     @Override
@@ -93,14 +100,16 @@ public class SQLTitleStorage extends TitleStorage {
         }
         catch (SQLException ex)
         {
-            plugin.getLogger().log(Level.SEVERE,"Could not load titles of player " + target.getName(), ex);
+            plugin.getLogger().log(Level.SEVERE,"Could not load titles of player " + target.getName());
+            plugin.getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
         }
 
         manager.setPlayerPrefix(prefix, target);
         manager.setPlayerSuffix(suffix, target);
     }
 
-    @Override
+    @SuppressWarnings("resource")
+	@Override
     public void saveTitlesPlayer(OfflinePlayer target)
     {
         Title p = manager.getPlayerPrefix(target);
@@ -134,7 +143,8 @@ public class SQLTitleStorage extends TitleStorage {
             stmt.executeUpdate();
             stmt.close();
         } catch (SQLException ex) {
-        	plugin.getLogger().log(Level.SEVERE, "Unable to save titles", ex);
+        	plugin.getLogger().log(Level.SEVERE,"Could not save titles of player " + target.getName());
+            plugin.getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
         }
     }
 }

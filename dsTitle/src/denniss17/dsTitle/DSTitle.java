@@ -54,6 +54,18 @@ public class DSTitle extends JavaPlugin{
         this.getLogger().info("Loaded!");
 	}
 	
+	@Override
+	public void onDisable() {
+		super.onDisable();
+		if(this.storage instanceof SQLTitleStorage){
+			try {
+				((SQLTitleStorage)this.storage).closeConnection();
+			} catch (SQLException e) {
+				
+			}
+		}
+	}
+	
 	/**
 	 * Activate the versionCheckerThread to run on a timer
 	 */
@@ -84,7 +96,8 @@ public class DSTitle extends JavaPlugin{
                 this.storage = new SQLTitleStorage(this,titleManager);
             }
             catch( SQLException ex){
-                getLogger().log(Level.SEVERE,"Could not create SQLStorage, Falling Back to File Storage", ex);
+                getLogger().log(Level.SEVERE,"Could not create SQLStorage, falling back to file storage");
+                getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
                 // Fall Back to YML
                 this.storage = new YMLTitleStorage(this,titleManager);
             }
