@@ -32,6 +32,7 @@ public class SQLTitleStorage extends TitleStorage {
 
         this.conn = getConnection();
 
+        // Create table
         String qry = "CREATE TABLE IF NOT EXISTS `players` (`name` VARCHAR(16) NOT NULL PRIMARY KEY, `prefix` VARCHAR(128), `suffix` VARCHAR(128));";
         Statement stmt = this.conn.createStatement();
         stmt.execute(qry);
@@ -51,7 +52,7 @@ public class SQLTitleStorage extends TitleStorage {
     }
 
     private Connection getConnection() {
-        if (conn != null) {
+        /*if (conn != null) {
             // Make a dummy query to check the connection is alive.
             try {
                 if (conn.isClosed()) {
@@ -62,15 +63,13 @@ public class SQLTitleStorage extends TitleStorage {
             } catch (SQLException ex) {
 
             }
-        }
+        }*/
         try {
             if (conn == null || conn.isClosed()) {
                 conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
-                return conn;
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
-            return null;
+        	plugin.getLogger().log(Level.SEVERE, "Could not connect to the database", ex);
         }
         return conn;
     }
@@ -80,10 +79,11 @@ public class SQLTitleStorage extends TitleStorage {
     {
         String prefix = "";
         String suffix = "";
-        String qry = "SELECT * FROM `players` WHERE `name` = '" + target.getName() + "';";
+        String qry = "SELECT * FROM `players` WHERE `name` = ?;";
         try {
-            Statement stmt = this.conn.createStatement();
-            ResultSet result = stmt.executeQuery(qry);
+            PreparedStatement stmt = this.getConnection().prepareStatement(qry);
+            stmt.setString(1, target.getName());
+            ResultSet result = stmt.executeQuery();
 
             if(result.next())
             {
@@ -93,7 +93,7 @@ public class SQLTitleStorage extends TitleStorage {
         }
         catch (SQLException ex)
         {
-            plugin.getLogger().log(Level.SEVERE,"Could not get Suffix", ex);
+            plugin.getLogger().log(Level.SEVERE,"Could not load titles of player " + target.getName(), ex);
         }
 
         manager.setPlayerPrefix(prefix, target);
@@ -112,22 +112,29 @@ public class SQLTitleStorage extends TitleStorage {
         // Check if the Player has an Existing Row
         try{
             String existing;
-            String qry = "SELECT `name` FROM `players` WHERE `name` = '" + target.getName() + "';";
-            Statement stmt = this.conn.createStatement();
-            ResultSet result = stmt.executeQuery(qry);
-
+            String qry = "SELECT `name` FROM `players` WHERE `name` = ?;";
+            PreparedStatement stmt = this.conn.prepareStatement(qry);
+            stmt.setString(1, target.getName());
+            
+            ResultSet result = stmt.executeQuery();
             existing = result.next() ? result.getString("name") : null;
+            stmt.close();
 
-            if(existing != null)
-                qry = "UPDATE `players` SET `prefix` = '" + prefix + "', `suffix` = '" + suffix + "' WHERE `name` = '" + target.getName() + "';";
-            else
-                qry = "INSERT INTO `players` VALUES ('" + target.getName() + "','" + prefix + "','" + suffix + "');";
-
-            stmt = this.conn.createStatement();
-            stmt.execute(qry);
-
+            if(existing != null){
+            	stmt = this.getConnection().prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `name` = ?;");
+            	stmt.setString(1, prefix);
+            	stmt.setString(2, suffix);
+            	stmt.setString(3, target.getName());
+            }else{
+            	stmt = this.getConnection().prepareStatement("INSERT INTO `players` VALUES (?, ?, ?);");
+            	stmt.setString(1, target.getName());
+            	stmt.setString(2, prefix);
+            	stmt.setString(3, suffix);
+            }
+            stmt.executeUpdate();
+            stmt.close();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+        	plugin.getLogger().log(Level.SEVERE, "Unable to save titles", ex);
         }
     }
 }

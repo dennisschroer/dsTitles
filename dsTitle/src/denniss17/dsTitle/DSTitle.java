@@ -1,22 +1,19 @@
 package denniss17.dsTitle;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.kaltiz.dsTitle.TitleManager;
 import com.kaltiz.dsTitle.storage.SQLTitleStorage;
 import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class DSTitle extends JavaPlugin{	
-	private FileConfiguration titleConfig = null;
-	private File titleConfigFile = null;
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
     private TitleManager titleManager;

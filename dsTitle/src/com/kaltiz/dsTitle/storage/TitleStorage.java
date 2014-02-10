@@ -2,9 +2,12 @@ package com.kaltiz.dsTitle.storage;
 
 import com.kaltiz.dsTitle.TitleManager;
 import denniss17.dsTitle.DSTitle;
-import denniss17.dsTitle.Title;
 import org.bukkit.OfflinePlayer;
 
+/**
+ * Abstract class specifying methods to be implemented by any class
+ * responsible for storing and loading titles
+ */
 public abstract class TitleStorage {
 
     DSTitle plugin;

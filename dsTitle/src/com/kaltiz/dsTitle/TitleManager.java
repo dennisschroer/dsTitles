@@ -1,6 +1,5 @@
 package com.kaltiz.dsTitle;
 
-import com.kaltiz.dsTitle.storage.TitleStorage;
 import denniss17.dsTitle.DSTitle;
 import denniss17.dsTitle.Title;
 import denniss17.dsTitle.Title.Type;
@@ -17,23 +16,37 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
-
+/**
+ * This class is responsible for managing titles of players.
+ * It also functions as a buffer to avoid unnecessary memory access.
+ * @author Kaltiz (and denniss17)
+ */
 public class TitleManager {
-
+	private static final String TITLE_CONFIG_FILENAME = "titleConfig.yml";
+	
+	/**
+	 * The main plugin object
+	 */
     private final DSTitle plugin;
 
+    /** The FileConfiguration containing all titles */
     private FileConfiguration titleConfig = null;
+    /** The File which contains the titleConfig */
     private File titleConfigFile = null;
 
+    /** Buffer containing prefixes */
     private HashMap<String,Title> prefixes = new HashMap<>();
+    /** Buffer containing suffixes */
     private HashMap<String,Title> suffixes = new HashMap<>();
+    /** Buffer containing who has which prefix (by name) */
     private HashMap<String,String> playerPrefixes = new HashMap<>();
+    /** Buffer containing who has which suffix (by name) */
     private HashMap<String,String> playerSuffixes = new HashMap<>();
 
     public TitleManager(DSTitle plugin)
     {
         this.plugin = plugin;
-        titleConfigFile = new File(plugin.getDataFolder(), "titleConfig.yml");
+        titleConfigFile = new File(plugin.getDataFolder(), TITLE_CONFIG_FILENAME);
         titleConfig = YamlConfiguration.loadConfiguration(titleConfigFile);
         prefixes.clear();
         suffixes.clear();
@@ -71,7 +84,7 @@ public class TitleManager {
      * @param name name of the title to load
      * @return void
      */
-    private Title loadTitle(String type,String name)
+    private Title loadTitle(String type, String name)
     {
         String path = type + '.' + name;
 
