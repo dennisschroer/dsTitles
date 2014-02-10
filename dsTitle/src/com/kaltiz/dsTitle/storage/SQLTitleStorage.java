@@ -43,7 +43,7 @@ public class SQLTitleStorage extends TitleStorage {
         }
 
         // Create table
-        String qry = "CREATE TABLE IF NOT EXISTS `players` (`name` VARCHAR(16) NOT NULL PRIMARY KEY, `prefix` VARCHAR(128), `suffix` VARCHAR(128));";
+        String qry = "CREATE TABLE IF NOT EXISTS `players` (`name` VARCHAR(16) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
         Statement stmt = this.conn.createStatement();
         stmt.execute(qry);
     }
