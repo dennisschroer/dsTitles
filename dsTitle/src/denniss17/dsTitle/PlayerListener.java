@@ -51,7 +51,7 @@ public class PlayerListener implements Listener {
 		
 			Title prefix = plugin.getTitleManager().getPlayerPrefix(player);
 			Title suffix = plugin.getTitleManager().getPlayerSuffix(player);
-			if(prefix!=null){
+			if(prefix!=null && prefix.chatTag!=null){
 				if(!chatFormat.contains(prefixTag)){
 					chatFormat = chatFormat.replace(playerTag, prefix.chatTag + playerTag + "&r");
 				}else{
@@ -60,9 +60,9 @@ public class PlayerListener implements Listener {
 			}else{
 				chatFormat = chatFormat.replace(prefixTag, "");
 			}
-			if(suffix!=null){
+			if(suffix!=null && suffix.chatTag!=null){
 				if(!chatFormat.contains(suffixTag)){
-					chatFormat = chatFormat.replace(playerTag, suffix.chatTag + playerTag + "&r");
+					chatFormat = chatFormat.replace(playerTag, playerTag + suffix.chatTag + "&r");
 				}else{
 					chatFormat = chatFormat.replace(suffixTag, suffix.chatTag + "&r");
 				}
