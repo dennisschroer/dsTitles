@@ -98,9 +98,5 @@ public class PlayerListener implements Listener {
 		if(plugin.getConfig().getBoolean("general.use_nametag")){
 			plugin.getTeamManager().removePlayerFromTeam(event.getPlayer());
 		}
-
-        // Save Changes
-        plugin.getStorage().saveTitlesPlayer(event.getPlayer());
-
 	}
 }

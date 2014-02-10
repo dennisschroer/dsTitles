@@ -164,6 +164,8 @@ public class TitleManager {
         }else{
         	playerPrefixes.put(target.getName(), title.name);
         }
+        // Save Changes
+        plugin.getStorage().saveTitlesPlayer(target);
     }
 
     /**
@@ -173,20 +175,7 @@ public class TitleManager {
      */
     public void setPlayerPrefix(String title, OfflinePlayer target)
     {
-        plugin.getLogger().info("prefix: " + title);
-        if(title==null){
-        	// Clear prefix
-        	plugin.getTeamManager().getTeam(null, getPlayerSuffix(target)).addPlayer(target);
-        	playerPrefixes.remove(target.getName());
-        }else{
-        	if (!prefixes.containsKey(title)) return;
-            if(plugin.getConfig().getBoolean("general.use_nametag"))
-            {
-                Title tit = getPrefix(title);
-                plugin.getTeamManager().getTeam(tit, getPlayerSuffix(target)).addPlayer(target);
-            }
-            playerPrefixes.put(target.getName(), title);
-        }
+        setPlayerPrefix(getPrefix(title), target);
     }
 
     /**
@@ -205,6 +194,8 @@ public class TitleManager {
         }else{
         	playerSuffixes.put(target.getName(), title.name);
         }
+        // Save Changes
+        plugin.getStorage().saveTitlesPlayer(target);
     }
 
     /**
@@ -214,20 +205,7 @@ public class TitleManager {
      */
     public void setPlayerSuffix(String title,OfflinePlayer target)
     {
-    	plugin.getLogger().info("suffix: " + title);
-        if(title==null){
-        	// Clear prefix
-        	plugin.getTeamManager().getTeam(getPlayerPrefix(target), null).addPlayer(target);
-        	playerSuffixes.remove(target.getName());
-        }else{
-        	if (!suffixes.containsKey(title)) return;
-            if(plugin.getConfig().getBoolean("general.use_nametag"))
-            {
-                Title tit = getSuffix(title);
-                plugin.getTeamManager().getTeam(getPlayerPrefix(target), tit).addPlayer(target);
-            }
-            playerSuffixes.put(target.getName(), title);
-        }
+    	setPlayerSuffix(getSuffix(title), target);
     }
 
     /**
@@ -238,6 +216,8 @@ public class TitleManager {
     {
         playerPrefixes.remove(target.getName());
         playerSuffixes.remove(target.getName());
+        // Save Changes
+        plugin.getStorage().saveTitlesPlayer(target);
     }
 
     /**

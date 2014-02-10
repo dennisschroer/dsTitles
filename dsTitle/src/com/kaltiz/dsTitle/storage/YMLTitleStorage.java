@@ -22,7 +22,7 @@ public class YMLTitleStorage extends TitleStorage {
 
         String file = plugin.getConfig().contains("storage.file") ? plugin.getConfig().getString("storage.file") : "players.yml";
 
-        this.playersFile = new File(plugin.getDataFolder(),file);
+        this.playersFile = new File(plugin.getDataFolder(), file);
         this.playersConfig = YamlConfiguration.loadConfiguration(playersFile);
 
         try {
