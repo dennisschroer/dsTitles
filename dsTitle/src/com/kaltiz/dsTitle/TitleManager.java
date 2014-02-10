@@ -59,20 +59,20 @@ public class TitleManager {
     private void loadTitles()
     {
         Title title;
-        if(titleConfig.contains("suffixes"))
+        if(titleConfig.contains(Type.SUFFIX.getKey()))
         {
-            Set<String> titles = titleConfig.getConfigurationSection("suffixes").getKeys(false);
+            Set<String> titles = titleConfig.getConfigurationSection(Type.SUFFIX.getKey()).getKeys(false);
             for(String name: titles){
-                title = loadTitle("suffixes", name);
+                title = loadTitle(Type.SUFFIX, name);
                 if (title != null) suffixes.put(name,title);
             }
         }
 
-        if(titleConfig.contains("prefixes"))
+        if(titleConfig.contains(Type.PREFIX.getKey()))
         {
-            Set<String> titles = titleConfig.getConfigurationSection("prefixes").getKeys(false);
+            Set<String> titles = titleConfig.getConfigurationSection(Type.PREFIX.getKey()).getKeys(false);
             for(String name: titles){
-                title = loadTitle("prefixes", name);
+                title = loadTitle(Type.PREFIX, name);
                 if (title != null) prefixes.put(name,title);
             }
         }
@@ -84,9 +84,9 @@ public class TitleManager {
      * @param name name of the title to load
      * @return void
      */
-    private Title loadTitle(String type, String name)
+    private Title loadTitle(Type type, String name)
     {
-        String path = type + '.' + name;
+        String path = type.getKey() + '.' + name;
 
         if(path==null||path.equals("")){
             return null;
@@ -96,18 +96,18 @@ public class TitleManager {
 
         if(titleSection!=null)
         {
-            String permission   = titleSection.contains("permission")   ? titleSection.getString("permission")  : null;
-            String description  = titleSection.contains("description")  ? titleSection.getString("description") : null;
-            String chatTag      = titleSection.contains("chattag") 	    ? titleSection.getString("chattag") 	: null;
-            String headTag      = titleSection.contains("headtag") 	    ? titleSection.getString("headtag") 	: null;
-            Type titleType      = type == "prefixes" ? Type.PREFIX : Type.SUFFIX;
+        	// These values could be null !
+            String permission   = titleSection.getString("permission");
+            String description  = titleSection.getString("description");
+            String chatTag      = titleSection.getString("chattag");
+            String headTag      = titleSection.getString("headtag");
             if (headTag!=null && headTag.length() > 16)
             {
                 plugin.getLogger().warning("Title  '" + name + "has been disabled!");
                 plugin.getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
                 return null;
             }
-            return new Title(name, titleType, chatTag, headTag, permission, description);
+            return new Title(name, type, chatTag, headTag, permission, description);
         }
         else
         {
@@ -289,9 +289,9 @@ public class TitleManager {
         // Get path
         String path;
         if(title.type.equals(Type.PREFIX))
-            path = "prefixes." + title.name + ".";
+            path = Type.PREFIX.getKey() + "." + title.name + ".";
         else
-            path = "suffixes." + title.name + ".";
+            path = Type.SUFFIX.getKey() + "." + title.name + ".";
 
         // Save title
         titleConfig.set(path + "permission", title.permission);

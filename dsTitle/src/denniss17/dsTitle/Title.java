@@ -5,7 +5,20 @@ package denniss17.dsTitle;
  */
 public class Title implements Comparable<Title>
 {
-	public enum Type {PREFIX, SUFFIX};
+	public enum Type {
+		PREFIX("prefixes"), 
+		SUFFIX("suffixes");
+		
+		private String key;
+
+		Type(String key){
+			this.key = key;
+		}
+	
+		public String getKey() {
+			return this.key;
+		}
+	};
 	public String name;
 	public Type type;
 	public String chatTag;
