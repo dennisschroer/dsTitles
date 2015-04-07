@@ -1,0 +1,96 @@
+name: dsTitle
+main: denniss17.dsTitle.DSTitle
+version: 1.4.0
+author: Denniss17
+website: 'http://dev.bukkit.org/server-mods/dstitle/'
+description: With this plugin you can create and set titles.
+softdepend: [Vault]
+commands:
+   title:
+      description: Manage your title
+      usage: /<command>
+      permission: ds_title.title
+permissions:
+   ds_title.title:
+      description: Gives access to the title command
+      default: op
+   ds_title.admin:
+      description: Permission for all commands.
+      default: op
+      children:
+         ds_title.player: true
+         ds_title.prefix: true
+         ds_title.suffix: true
+         ds_title.clear: true
+         ds_title.add: true
+         ds_title.edit: true
+         ds_title.reload: true
+         ds_title.grant: true
+         ds_title.ungrant: true
+   ds_title.player:
+      description: Gives access to all the player commands
+      default: true
+      children:
+        ds_title.title: true
+        ds_title.prefix.self: true
+        ds_title.suffix.self: true
+        ds_title.prefix.list: true
+        ds_title.suffix.list: true
+        ds_title.clear.self: true
+   ds_title.prefix:
+      description: Gives access to changing prefix
+      default: op
+      children:
+         ds_title.prefix.self: true
+         ds_title.prefix.other: true
+   ds_title.suffix:
+      description: Gives access to changing suffix
+      default: op
+      children:
+         ds_title.suffix.self: true
+         ds_title.suffix.other: true
+   ds_title.prefix.list:
+      description: List the prefixes
+      default: op
+   ds_title.suffix.list:
+      description: List the suffixes
+      default: op
+   ds_title.prefix.self:
+      description: Gives access to changing prefix of yourself
+      default: op
+   ds_title.suffix.self:
+      description: Gives access to changing suffix of yourself
+      default: op
+   ds_title.prefix.other:
+      description: Gives access to changing prefix of somebody else
+      default: op
+   ds_title.suffix.other:
+      description: Gives access to changing suffix of somebody else
+      default: op
+   ds_title.add:
+      description: Permission to add a new title
+      default: op
+   ds_title.edit:
+      description: Permission to edit a title
+      default: op
+   ds_title.clear:
+      description: Permission to clear your title
+      default: op
+      children:
+         ds_title.clear.self: true
+         ds_title.clear.other: true
+   ds_title.clear.self:
+      description: Permission to clear your title
+      default: op
+   ds_title.clear.other:
+      description: Permission to clear somebodys title
+      default: op
+   ds_title.reload:
+      description: Permission to reload the titles from config
+      default: op
+   ds_title.grant:
+      description: Permission to grant titles
+      default: op
+   ds_title.ungrant:
+      description: Permission to ungrant titles
+      default: op
