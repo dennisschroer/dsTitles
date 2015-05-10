@@ -143,6 +143,14 @@ public class TitleManager {
             return null;
         }
     }
+    
+    public String getChatTag(OfflinePlayer target){
+    	String chatTag = getPlayerPrefix(target).chatTag;
+    	if(!chatTag.equals(null) || !chatTag.equals("")){
+    		return chatTag;
+    	}
+    	return "";
+    }
 
     /**
      * Get the Title a player has set currently as suffix

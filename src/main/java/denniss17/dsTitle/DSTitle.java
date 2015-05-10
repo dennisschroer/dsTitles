@@ -21,11 +21,13 @@ public class DSTitle extends JavaPlugin{
 	
 	private static final int projectID = 51865;
 	public static VersionChecker versionChecker;
+	public static DSTitle title;
 
 	/**
 	 * Enable this plugin
 	 */
 	public void onEnable(){
+		title = this;
 		// Register listeners
 		Listener playerListener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
