@@ -73,7 +73,8 @@ public class DSTitle extends JavaPlugin{
 	 */
 	private void activateVersionChecker(){
 		versionChecker = new VersionChecker(this, projectID);
-		versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+        if(versionChecker!=null)
+        	versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
 	}
 	
 	/**

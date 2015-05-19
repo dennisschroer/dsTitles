@@ -83,7 +83,9 @@ public class PlayerListener implements Listener {
 		// Check for update and send message
 		if(plugin.getPermissionManager().hasPermission(event.getPlayer(), "ds_title.admin")){
 			// If there is a new version
-			if(DSTitle.versionChecker.getLatestVersionName() != null && !DSTitle.versionChecker.getLatestVersionName().equals(plugin.getDescription().getVersion())){
+			if(DSTitle.versionChecker!=null)
+			if(DSTitle.versionChecker.getLatestVersionName() != null)
+				if(DSTitle.versionChecker.getLatestVersionName()!=null && !DSTitle.versionChecker.getLatestVersionName().equals(plugin.getDescription().getVersion())){
 				// Send message to player with admin permissions
 				plugin.sendMessage(event.getPlayer(), plugin.getConfig().getString("messages.update_notification")
 						.replace("{version}", DSTitle.versionChecker.getLatestVersionName())

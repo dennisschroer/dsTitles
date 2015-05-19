@@ -228,6 +228,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		// Get target
+		@SuppressWarnings("deprecation")
 		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
 		
 		// Check permission
@@ -266,6 +267,7 @@ public class CommandExec implements CommandExecutor{
 		return true;	
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleSetSuffix(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(args.length<3) return false;
 		
@@ -317,6 +319,7 @@ public class CommandExec implements CommandExecutor{
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleClear(CommandSender sender, Command cmd, String commandlabel, String[] args){		
 		// Check if player
 		Player player;
@@ -366,6 +369,7 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleGrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.grant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){
@@ -397,6 +401,7 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleUngrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.ungrant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){

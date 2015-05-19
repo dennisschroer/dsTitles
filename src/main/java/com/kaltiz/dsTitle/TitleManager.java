@@ -45,7 +45,8 @@ public class TitleManager {
     /** Buffer containing who has which suffix (by name) */
     private HashMap<String,String> playerSuffixes = new HashMap<>();
 
-    public TitleManager(DSTitle plugin)
+    @SuppressWarnings("deprecation")
+	public TitleManager(DSTitle plugin)
     {
         this.plugin = plugin;
         titleConfigFile = new File(plugin.getDataFolder(), TITLE_CONFIG_FILENAME);
