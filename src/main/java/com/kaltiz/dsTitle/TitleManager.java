@@ -146,11 +146,15 @@ public class TitleManager {
     }
     
     public String getChatTag(OfflinePlayer target){
-    	String chatTag = getPlayerPrefix(target).chatTag;
-    	if(!chatTag.equals(null) || !chatTag.equals("")){
-    		return chatTag;
+    	if(plugin.getConfig().getBoolean("general.use_chattag")){
+	    	String chatTag;
+	    	chatTag = getPlayerPrefix(target).chatTag;
+	    	if(!chatTag.equals(null) || !chatTag.equals("")){
+	    		return chatTag;
+	    	}
+	    	return "";
     	}
-    	return "";
+    	return "ChatTags are Disabled";
     }
 
     /**
