@@ -72,6 +72,7 @@ public class TeamManager {
      * @param suffix The title to get prefix and suffix from
 	 * @require title!=null
 	 */
+	@SuppressWarnings("deprecation")
 	public void removePlayerFromTeam(Player player, Title prefix, Title suffix) {
 		if(prefix==null && suffix==null) return;
 		String prefixName = prefix==null ? "" : prefix.name;
@@ -104,6 +105,7 @@ public class TeamManager {
 	/**
 	 * Reload the prefixes and suffixes of the teams
 	 */
+	@SuppressWarnings("deprecation")
 	public void reloadTags() {		
 		// Remove all teams
 		cleanUpTeams(true);

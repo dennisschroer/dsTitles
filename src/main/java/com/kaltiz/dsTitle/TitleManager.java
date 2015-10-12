@@ -145,11 +145,16 @@ public class TitleManager {
         }
     }
     
-    public String getChatTag(OfflinePlayer target){
-    	if(plugin.getConfig().getBoolean("general.use_chattag")){
+    /**
+     * Get the Prefix a player has set currently
+     * @param target the player
+     * @return Title or null if the player has no prefix
+     */
+    public String getPrefixChatTag(OfflinePlayer target){
+    	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
 	    	String chatTag;
 	    	chatTag = getPlayerPrefix(target).chatTag;
-	    	if(!chatTag.equals(null) || !chatTag.equals("")){
+	    	if(!chatTag.equals(null) && !chatTag.equals("")){
 	    		return chatTag;
 	    	}
 	    	return "";
@@ -172,13 +177,32 @@ public class TitleManager {
             return null;
         }
     }
+    
+    /**
+     * Get the Suffix a player has set currently
+     * @param target the player
+     * @return Title or null if the player has no suffix
+     */
+
+    public String getSuffixChatTag(OfflinePlayer target){
+    	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
+	    	String chatTag;
+	    	chatTag = getPlayerSuffix(target).chatTag;
+	    	if(!chatTag.equals(null) && !chatTag.equals("")){
+	    		return chatTag;
+	    	}
+	    	return "";
+    	}
+    	return "ChatTags are Disabled";
+    }
 
     /**
      * Sets the Players Prefix, Only in Memory
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerPrefix(Title title,OfflinePlayer target)
+    @SuppressWarnings("deprecation")
+	public void setPlayerPrefix(Title title,OfflinePlayer target)
     {
         if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
@@ -208,7 +232,8 @@ public class TitleManager {
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerSuffix(Title title, OfflinePlayer target)
+    @SuppressWarnings("deprecation")
+	public void setPlayerSuffix(Title title, OfflinePlayer target)
     {
     	if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
