@@ -14,6 +14,8 @@ import com.kaltiz.dsTitle.storage.SQLTitleStorage;
 import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
+import denniss17.dsTitle.Placeholders.Placeholders;
+
 public class DSTitle extends JavaPlugin{	
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
