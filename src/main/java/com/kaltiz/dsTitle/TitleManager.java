@@ -206,7 +206,7 @@ public class TitleManager {
     {
         if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
-            plugin.getTeamManager().getTeam(title, getPlayerSuffix(target)).addPlayer(target);
+            plugin.getTeamManager().getTeam(title, getPlayerSuffix(target), target.getPlayer()).addPlayer(target);
         }
         if(title==null){
         	playerPrefixes.remove(target.getName());
@@ -237,7 +237,7 @@ public class TitleManager {
     {
     	if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
-            plugin.getTeamManager().getTeam(getPlayerPrefix(target), title).addPlayer(target);
+            plugin.getTeamManager().getTeam(getPlayerPrefix(target), title, target.getPlayer()).addPlayer(target);
         }
         if(title==null){
         	playerSuffixes.remove(target.getName());

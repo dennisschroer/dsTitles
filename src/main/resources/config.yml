@@ -30,6 +30,8 @@ general:
   # Should the plugin also change the tags above the heads of players?
   # These will be set to the values of headprefix and headsuffix in titleConfig.yml
   # Disable this if you have another plugin which handles this or uses teams of the Bukkit scoreboard api.
+  # Note : You can still use the placeholders in nametags if another plugin is handling nametags and that
+  # plugin supports PlaceHolderAPI or DeluxeChat
   use_nametag: true
   # Should the plugin check for updates and notify all players with ds_title.admin?
   check_for_updates: true
