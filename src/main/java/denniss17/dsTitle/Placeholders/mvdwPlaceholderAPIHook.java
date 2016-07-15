@@ -25,10 +25,10 @@ public class mvdwPlaceholderAPIHook{
 			                {
 			                	return man.getPrefixChatTag(p);
 			                }else{
-			                	return "tag is null";
+			                	return "";
 			                }
 		                }else{
-		                  return "titlemanager is null";
+		                  return "";
 		                }
 					}
 					return "";		
