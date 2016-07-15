@@ -10,15 +10,13 @@ import be.maximvdw.placeholderapi.PlaceholderReplacer;
 import denniss17.dsTitle.DSTitle;
 
 public class mvdwPlaceholderAPIHook{
-	public final static String blank = " ";
-	public static boolean dsTitlePrefixHook(final DSTitle plugin){
+	public static boolean dsTitlePrefixHook(){
 		PlaceholderReplacer dsTitlePrefix = new PlaceholderReplacer (){
 			@Override
-			public String onPlaceholderReplace (
-				PlaceholderReplaceEvent event) {
-					if(!event.getPlayer().equals(null)){
+			public String onPlaceholderReplace(PlaceholderReplaceEvent event) {
+					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						TitleManager man = plugin.getTitleManager();
+						TitleManager man = DSTitle.title.getTitleManager();
 		                if (man != null)
 		                {
 		                	String prefixTag;
@@ -27,26 +25,26 @@ public class mvdwPlaceholderAPIHook{
 			                {
 			                	return man.getPrefixChatTag(p);
 			                }else{
-			                	return " ";
+			                	return "tag is null";
 			                }
 		                }else{
-		                  return " ";
+		                  return "titlemanager is null";
 		                }
 					}
-					return blank;		
+					return "";		
 				}
 		};
-		return PlaceholderAPI.registerPlaceholder(plugin, "dsTitle_prefix", dsTitlePrefix); 
+		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_prefix", dsTitlePrefix);
 	}
 	
-	public static boolean dsTitleSuffixHook(final DSTitle plugin){
+	public static boolean dsTitleSuffixHook(){
 		PlaceholderReplacer dsTitleSuffix = new PlaceholderReplacer (){
 			@Override
 			public String onPlaceholderReplace (
 				PlaceholderReplaceEvent event) {
-					if(!event.getPlayer().equals(null)){
+					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						TitleManager man = plugin.getTitleManager();
+						TitleManager man = DSTitle.title.getTitleManager();
 	                    if (man != null)
 	                    {
 	                    	String suffixTag;
@@ -55,15 +53,15 @@ public class mvdwPlaceholderAPIHook{
 	                    	{
 	                    		return man.getSuffixChatTag(p);
 	                    	}else{
-	                    		return " ";
+	                    		return "";
 	                    	}
 	                    }else{
-	                    	return " ";
+	                    	return "";
 	                    }
-					}
-					return blank;		
+					}	
+					return "";
 				}
 		};
-		return PlaceholderAPI.registerPlaceholder(plugin, "dsTitle_suffix", dsTitleSuffix); 
+		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_suffix", dsTitleSuffix); 
 	}
 }

@@ -13,10 +13,6 @@ import com.kaltiz.dsTitle.storage.SQLTitleStorage;
 import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
-import denniss17.dsTitle.Placeholders.DeluxeChatHook;
-import denniss17.dsTitle.Placeholders.PlaceholderAPIHook;
-import denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook;
-
 public class DSTitle extends JavaPlugin{	
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
@@ -33,6 +29,29 @@ public class DSTitle extends JavaPlugin{
 	 */
 	public void onEnable(){
 		title = this;
+		super.onEnable();
+		if(Bukkit.getPluginManager().isPluginEnabled("MVdWPlaceholderAPI"))
+		{
+			if(denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook.dsTitlePrefixHook()&&
+			denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook.dsTitleSuffixHook()){
+				getLogger().info("dsTitle was successfully registered with mvdwPlaceholderAPI!");
+				placeHolders = true;
+			}
+		}
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+		{
+			if (denniss17.dsTitle.Placeholders.PlaceholderAPIHook.RegisterPlaceHolderHooks(title)) {
+		        getLogger().info("dsTitle was successfully registered with PlaceHolderAPI!");
+		        placeHolders = true;
+		    }
+		}
+		if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
+		{
+			if (denniss17.dsTitle.Placeholders.DeluxeChatHook.RegisterDeluxeChatHooks(title)) {
+		        getLogger().info("dsTitle was successfully registered with DeluxeChat!");
+		        placeHolders = true;
+		    }
+		}
 		// Register listeners
 		Listener playerListener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
@@ -57,27 +76,6 @@ public class DSTitle extends JavaPlugin{
 		if(this.getConfig().getBoolean("general.check_for_updates")){
 			activateVersionChecker();
         }
-		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
-		{
-			if (PlaceholderAPIHook.RegisterPlaceHolderHooks(title)) {
-		        getLogger().info("dsTitle was successfully registered with PlaceHolderAPI!");
-		        placeHolders = true;
-		    }
-		}
-		if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
-		{
-			if (DeluxeChatHook.RegisterDeluxeChatHooks(title)) {
-		        getLogger().info("dsTitle was successfully registered with DeluxeChat!");
-		        placeHolders = true;
-		    }
-		}
-		if(Bukkit.getPluginManager().isPluginEnabled("MVdWPlaceholderAPI"))
-		{
-			if(mvdwPlaceholderAPIHook.dsTitlePrefixHook(title) && mvdwPlaceholderAPIHook.dsTitleSuffixHook(title)){
-				getLogger().info("dsTitle was successfully registered with mvdwPlaceholderAPI!");
-				placeHolders = true;
-			}
-		}
         this.getLogger().info("Loaded!");
 	}
 	
