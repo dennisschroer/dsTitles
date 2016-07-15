@@ -6,7 +6,7 @@
 
     <groupId>denniss17</groupId>
     <artifactId>dsTitle</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <name>DSTitle</name>
     <description>Players can set their own title. Titles can be associated with permissions, so you can change available titles per rank or player.</description>
 
@@ -30,7 +30,16 @@
         <repository>
 			<id>md_5-repo</id>
 			<url>http://repo.md-5.net/content/groups/public/</url>
-		  </repository>
+		</repository>
+		<repository>
+			<id>drkmatr1984</id>
+			<url>http://minevolt.net/repo/</url>
+		</repository>
+		<repository>
+            <id>mvdw-software</id>
+            <name>MVdW Public Repositories</name>
+            <url>http://repo.mvdw-software.be/content/groups/public/</url>
+        </repository>
     </repositories>
     <!-- Dependencies -->
     <dependencies>
@@ -67,6 +76,11 @@
             <version>1.6.5</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/DeluxeChat.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>be.maximvdw</groupId>
+            <artifactId>MVdWPlaceholderAPI</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

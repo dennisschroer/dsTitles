@@ -13,7 +13,9 @@ import com.kaltiz.dsTitle.storage.SQLTitleStorage;
 import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
-import denniss17.dsTitle.Placeholders.Placeholders;
+import denniss17.dsTitle.Placeholders.DeluxeChatHook;
+import denniss17.dsTitle.Placeholders.PlaceholderAPIHook;
+import denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook;
 
 public class DSTitle extends JavaPlugin{	
 	private PermissionManager permissionManager;
@@ -57,18 +59,25 @@ public class DSTitle extends JavaPlugin{
         }
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
 		{
-			if (Placeholders.RegisterPlaceHolderHooks(title)) {
+			if (PlaceholderAPIHook.RegisterPlaceHolderHooks(title)) {
 		        getLogger().info("dsTitle was successfully registered with PlaceHolderAPI!");
 		        placeHolders = true;
 		    }
 		}
 		if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
 		{
-			if (Placeholders.RegisterDeluxeChatHooks(title)) {
+			if (DeluxeChatHook.RegisterDeluxeChatHooks(title)) {
 		        getLogger().info("dsTitle was successfully registered with DeluxeChat!");
 		        placeHolders = true;
 		    }
-		}		
+		}
+		if(Bukkit.getPluginManager().isPluginEnabled("MVdWPlaceholderAPI"))
+		{
+			if(mvdwPlaceholderAPIHook.dsTitlePrefixHook(title) && mvdwPlaceholderAPIHook.dsTitleSuffixHook(title)){
+				getLogger().info("dsTitle was successfully registered with mvdwPlaceholderAPI!");
+				placeHolders = true;
+			}
+		}
         this.getLogger().info("Loaded!");
 	}
 	
