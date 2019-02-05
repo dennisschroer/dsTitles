@@ -46,13 +46,15 @@ storage:
   # Database settings
   database:
     # Database driver. Possible values: H2, MYSQL, POSTGRE, SQLITE
-    driver: ''
+    driver: 'mysql'
     # Url of the database, or filename in case of SQLITE
-    url: ''
+    url: 'mysql://127.0.0.1:3306/dstitle'
+    # Boolean to use SSL in case of mysql database
+    useSSL: false
     # Username for database. Not needed when using SQLITE
-    username: ''
+    username: 'root'
     # Password for database. Not needed when using SQLITE
-    password: ''
+    password: 'password'
 messages:
   # I think this doesn't need explanation
   error_no_player: '&8[&eTitles&8] &cOnly players can use this command'
