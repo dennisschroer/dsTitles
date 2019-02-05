@@ -80,7 +80,9 @@ messages:
   # Header showed above available titles, when a player does /title list
   available_header: '&8~~=={  &aAvailable &etitles &8}==~~'
   # Make up of one title in the list showed when a player does /title list
-  title_listitem: '{name}&r: {preview} &r&8({description})'
+  title_available_hovertext: '&eClick to set your title as {title}'
+  title_listitem_available: '{preview} &r&8({description})'
+  title_listitem_unavailable: '{preview} &r&8({description})'
   # The help menu (if you just use /title)
   menu_header: '&8~~=={ &e&ldsTitles help &r&8}==~~'
   menu_prefix_list: ' &e/title prefix &fList available prefixes'

@@ -16,20 +16,18 @@ public class mvdwPlaceholderAPIHook{
 			public String onPlaceholderReplace(PlaceholderReplaceEvent event) {
 					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						TitleManager man = DSTitle.title.getTitleManager();
-		                if (man != null)
-		                {
-		                	String prefixTag;
-		                	prefixTag = man.getPrefixChatTag(p);
-			                if (prefixTag != null)
+						if(DSTitle.title!=null){
+							TitleManager man = DSTitle.title.getTitleManager();
+			                if (man != null)
 			                {
-			                	return man.getPrefixChatTag(p);
-			                }else{
-			                	return "";
+			                	String prefixTag;
+			                	prefixTag = man.getPrefixChatTag(p);
+				                if (prefixTag != null)
+				                {
+				                	return man.getPrefixChatTag(p);
+				                }
 			                }
-		                }else{
-		                  return "";
-		                }
+						}				
 					}
 					return "";		
 				}
@@ -44,20 +42,18 @@ public class mvdwPlaceholderAPIHook{
 				PlaceholderReplaceEvent event) {
 					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						TitleManager man = DSTitle.title.getTitleManager();
-	                    if (man != null)
-	                    {
-	                    	String suffixTag;
-	                    	suffixTag = man.getSuffixChatTag(p);
-	                    	if (suffixTag != null)
-	                    	{
-	                    		return man.getSuffixChatTag(p);
-	                    	}else{
-	                    		return "";
-	                    	}
-	                    }else{
-	                    	return "";
-	                    }
+						if(DSTitle.title!=null){
+							TitleManager man = DSTitle.title.getTitleManager();
+		                    if (man != null)
+		                    {
+		                    	String suffixTag;
+		                    	suffixTag = man.getSuffixChatTag(p);
+		                    	if (suffixTag != null)
+		                    	{
+		                    		return man.getSuffixChatTag(p);
+		                    	}
+		                    }
+						}						
 					}	
 					return "";
 				}

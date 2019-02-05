@@ -61,4 +61,8 @@ public class DeluxeChatHook
 		});
 		return hookedchat;
 	}
+	
+	public static boolean unRegisterDeluxeChatHooks(final DSTitle plugin){
+		return PlaceholderHandler.unregisterPlaceholderHook(plugin);
+	}
 }

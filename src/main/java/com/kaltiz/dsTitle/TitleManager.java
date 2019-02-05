@@ -2,7 +2,6 @@ package com.kaltiz.dsTitle;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedSet;
@@ -45,17 +44,15 @@ public class TitleManager {
     /** Buffer containing who has which suffix (by name) */
     private HashMap<String,String> playerSuffixes = new HashMap<>();
 
-    @SuppressWarnings("deprecation")
-	public TitleManager(DSTitle plugin)
+    public TitleManager(DSTitle plugin)
     {
         this.plugin = plugin;
         titleConfigFile = new File(plugin.getDataFolder(), TITLE_CONFIG_FILENAME);
         titleConfig = YamlConfiguration.loadConfiguration(titleConfigFile);
         
         // Set correct keys in the file
-        InputStream defConfigStream = plugin.getResource(TITLE_CONFIG_FILENAME);
-        if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+        if (titleConfigFile.exists()) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(titleConfigFile);
             titleConfig.setDefaults(defConfig);
         }
     	titleConfig.options().copyDefaults(true);
@@ -135,14 +132,14 @@ public class TitleManager {
      * @return Title or null if the player has no prefix
      */
     public Title getPlayerPrefix(OfflinePlayer target)
-    {
-        if(playerPrefixes.containsKey(target.getName())){
-            String title = playerPrefixes.get(target.getName());
-            return prefixes.get(title);
-        }
-        else{
-            return null;
-        }
+    {	
+    	if(target!=null){
+    		if(playerPrefixes.containsKey(target.getName())){
+                String title = playerPrefixes.get(target.getName());
+                return prefixes.get(title);
+            }          
+    	}
+        return null;
     }
     
     /**
@@ -153,10 +150,14 @@ public class TitleManager {
     public String getPrefixChatTag(OfflinePlayer target){
     	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
 	    	String chatTag;
-	    	chatTag = getPlayerPrefix(target).chatTag;
-	    	if(!chatTag.equals(null) && !chatTag.equals("")){
-	    		return chatTag;
-	    	}
+	    	if(target!=null){
+	    		if(getPlayerPrefix(target).chatTag!=null){
+	    			chatTag = getPlayerPrefix(target).chatTag;
+			    	if(!chatTag.equals(null) && !chatTag.equals("")){
+			    		return chatTag;
+			    	}
+	    		}    		
+	    	}    	
 	    	return "";
     	}
     	return "ChatTags are Disabled";
@@ -169,13 +170,13 @@ public class TitleManager {
      */
     public Title getPlayerSuffix(OfflinePlayer target)
     {
-        if(playerSuffixes.containsKey(target.getName())){
-            String title = playerSuffixes.get(target.getName());
-            return suffixes.get(title);
-        }
-        else{
-            return null;
-        }
+    	if(target!=null){
+    		if(playerSuffixes.containsKey(target.getName())){
+                String title = playerSuffixes.get(target.getName());
+                return suffixes.get(title);
+            }
+    	}
+        return null;
     }
     
     /**
@@ -187,10 +188,14 @@ public class TitleManager {
     public String getSuffixChatTag(OfflinePlayer target){
     	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
 	    	String chatTag;
-	    	chatTag = getPlayerSuffix(target).chatTag;
-	    	if(!chatTag.equals(null) && !chatTag.equals("")){
-	    		return chatTag;
-	    	}
+	    	if(target!=null){
+	    		if(getPlayerSuffix(target).chatTag!=null){
+	    			chatTag = getPlayerSuffix(target).chatTag;
+			    	if(!chatTag.equals(null) && !chatTag.equals("")){
+			    		return chatTag;
+			    	}
+	    		}    		
+	    	}    	
 	    	return "";
     	}
     	return "ChatTags are Disabled";

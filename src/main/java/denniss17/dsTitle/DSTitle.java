@@ -82,6 +82,20 @@ public class DSTitle extends JavaPlugin{
 	@Override
 	public void onDisable() {
 		super.onDisable();
+		if(placeHolders){
+			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+			{
+				if (denniss17.dsTitle.Placeholders.PlaceholderAPIHook.unRegisterPlaceHolderHooks(title)) {
+					getLogger().info("dsTitle was successfully unregistered with PlaceHolderAPI!");
+				}
+			}
+			if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
+			{
+				if (denniss17.dsTitle.Placeholders.DeluxeChatHook.unRegisterDeluxeChatHooks(title)) {
+			        getLogger().info("dsTitle was successfully unregistered with DeluxeChat!");
+			    }
+			}
+		}
 		if(this.storage instanceof SQLTitleStorage){
 			try {
 				((SQLTitleStorage)this.storage).closeConnection();
