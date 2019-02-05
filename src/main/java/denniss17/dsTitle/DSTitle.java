@@ -47,10 +47,14 @@ public class DSTitle extends JavaPlugin{
 		}
 		if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
 		{
-			if (denniss17.dsTitle.Placeholders.DeluxeChatHook.RegisterDeluxeChatHooks(title)) {
-		        getLogger().info("dsTitle was successfully registered with DeluxeChat!");
-		        placeHolders = true;
-		    }
+			try {
+				if (denniss17.dsTitle.Placeholders.DeluxeChatHook.RegisterDeluxeChatHooks(title)) {
+				    getLogger().info("dsTitle was successfully registered with DeluxeChat!");
+				    placeHolders = true;
+				}
+			} catch (ClassNotFoundException e) {
+				getLogger().info("dsTitle found DeluxeChat, but it does not seem to be the correct version.");
+			}
 		}
 		// Register listeners
 		Listener playerListener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));

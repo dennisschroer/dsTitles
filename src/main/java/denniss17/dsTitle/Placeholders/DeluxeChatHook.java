@@ -16,7 +16,7 @@ public class DeluxeChatHook
 	 * Use these in DeluxeChat by using %dsTitle_prefix% for prefix or %dsTitle_suffix% for suffix
 	 * @return True if placeholders were registered successfully, false if failed
 	 */
-	public static boolean RegisterDeluxeChatHooks(final DSTitle plugin){
+	public static boolean RegisterDeluxeChatHooks(final DSTitle plugin) throws ClassNotFoundException{
 		boolean hookedchat = PlaceholderHandler.registerPlaceholderHook(plugin, new DeluxePlaceholderHook(){
 			public String onPlaceholderRequest(Player p, String identifier) {
                 if(identifier.equals("prefix")){
