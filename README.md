@@ -7,6 +7,7 @@ New Features to this Fork :
 * Registers Placeholders into PlaceholderAPI/DeluxeChat for dsTitle Suffixes/Prefixes. Use these in PlaceholderAPI and DeluxeChat by using %dsTitle_prefix% for prefix or %dsTitle_suffix% for suffix
 * Registers PlaceHolders into mvdwPlaceholderAPI for dsTitle Suffixes/Prefixes. Use these in any mvdw plugin if you have mvdwPlaceholderAPI installed by using {dstitle_prefix}
 * Ability to set a default prefix and default suffix
+* Able to set prefix/suffix just by clicking on the prefix/suffix in the titles list (Json style messages)
 * Fixed a few bugs, including the invisible players still having their nametags shown when dsTitle is handling nametags
 
 For more info go to http://dev.bukkit.org/server-mods/dstitle/
