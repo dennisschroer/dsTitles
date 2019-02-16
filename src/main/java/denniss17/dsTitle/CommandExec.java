@@ -203,7 +203,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		SortedSet<Title> titles = plugin.getTitleManager().getPrefixes();
-		sendTitleList(sender, titles);
+		sendTitleList(sender, titles, true);
 		return true;
 	}
 	
@@ -214,7 +214,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		SortedSet<Title> titles = plugin.getTitleManager().getSuffixes();
-		sendTitleList(sender, titles);
+		sendTitleList(sender, titles, false);
 		return true;
 	}
 	
@@ -435,7 +435,7 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 
-	private void sendTitleList(CommandSender sender, SortedSet<Title> titles){
+	private void sendTitleList(CommandSender sender, SortedSet<Title> titles, boolean prefix){
 		List<String> available = new ArrayList<String>();
 		List<String> unavailable = new ArrayList<String>();
 		List<String> availableTitles = new ArrayList<String>();
@@ -481,7 +481,10 @@ public class CommandExec implements CommandExecutor{
 					TextComponent extra = new TextComponent(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', available.get(i))));
 					String hoverText = hoverTextMask
 							.replace("{title}", availableTitles.get(i));
-					message.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, ("/title prefix set " + availableTitles.get(i)) ) );						
+					if(prefix)
+						message.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, ("/title prefix set " + availableTitles.get(i)) ) );						
+					else
+						message.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, ("/title suffix set " + availableTitles.get(i)) ) );
 					message.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',hoverText)) ) );				
 					message.addExtra(extra);
 					((Player) sender).spigot().sendMessage( message );

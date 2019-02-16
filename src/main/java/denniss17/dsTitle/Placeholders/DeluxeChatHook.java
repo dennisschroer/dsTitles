@@ -23,11 +23,10 @@ public class DeluxeChatHook
                 	TitleManager man = plugin.getTitleManager();
                     if (man != null)
                     {
-                  	String prefixTag;
-                  	prefixTag = man.getPrefixChatTag(p);
+                  	String prefixTag = man.getPrefixChatTag(p);
                       if (prefixTag != null)
                       {
-                        return man.getPrefixChatTag(p);
+                        return prefixTag;
                       }else
                       {
                         return " ";
@@ -41,11 +40,10 @@ public class DeluxeChatHook
                 	TitleManager man = plugin.getTitleManager();
                     if (man != null)
                     {
-                  	String suffixTag;
-                  	suffixTag = man.getSuffixChatTag(p);
+                  	String suffixTag = man.getSuffixChatTag(p);                 	
                       if (suffixTag != null)
                       {
-                        return man.getSuffixChatTag(p);
+                        return suffixTag;
                       }else
                       {
                         return " ";
