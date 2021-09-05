@@ -45,17 +45,6 @@ public class DSTitle extends JavaPlugin{
 		        placeHolders = true;
 		    }
 		}
-		if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
-		{
-			try {
-				if (denniss17.dsTitle.Placeholders.DeluxeChatHook.RegisterDeluxeChatHooks(title)) {
-				    getLogger().info("dsTitle was successfully registered with DeluxeChat!");
-				    placeHolders = true;
-				}
-			} catch (ClassNotFoundException e) {
-				getLogger().info("dsTitle found DeluxeChat, but it does not seem to be the correct version.");
-			}
-		}
 		// Register listeners
 		Listener playerListener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
@@ -92,12 +81,6 @@ public class DSTitle extends JavaPlugin{
 				if (denniss17.dsTitle.Placeholders.PlaceholderAPIHook.unRegisterPlaceHolderHooks(title)) {
 					getLogger().info("dsTitle was successfully unregistered with PlaceHolderAPI!");
 				}
-			}
-			if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
-			{
-				if (denniss17.dsTitle.Placeholders.DeluxeChatHook.unRegisterDeluxeChatHooks(title)) {
-			        getLogger().info("dsTitle was successfully unregistered with DeluxeChat!");
-			    }
 			}
 		}
 		if(this.storage instanceof SQLTitleStorage){

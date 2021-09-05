@@ -35,7 +35,7 @@
 		</repository>
 		<repository>
             <id>placeholderapi</id>
-            <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
 		<repository>
             <id>mvdw-software</id>
@@ -48,14 +48,14 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
@@ -69,16 +69,9 @@
             <version>2.9.2</version>
         </dependency>
         <dependency>
-            <groupId>me.clip.deluxechat</groupId>
-            <artifactId>DeluxeChat</artifactId>
-            <version>1.10.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>be.maximvdw</groupId>
             <artifactId>MVdWPlaceholderAPI</artifactId>
-            <version>2.5.2-SNAPSHOT</version>
+            <version>3.1.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
