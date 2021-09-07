@@ -106,11 +106,12 @@ public class VersionChecker implements Runnable{
                 JSONObject latest = (JSONObject) array.get(array.size() - 1);
 
                 // Get the version's title
-                versionName = (String) latest.get(API_NAME_VALUE);
-                
-                if(versionName.equals(plugin.getDescription().getVersion())){
+                versionName = ((String) latest.get(API_NAME_VALUE));
+                Integer versionCheck = Integer.parseInt((String)(versionName.replace(".", "")));
+                Integer pluginVersion = Integer.parseInt((String)((plugin.getDescription().getVersion()).replace(".", "")));
+                if(versionCheck.compareTo(pluginVersion) <= 0){
                 	plugin.getLogger().info("You have the latest version.");
-                }else{
+                }else if(versionCheck.compareTo(pluginVersion) > 0){
                 	plugin.getLogger().info("There is a new version (" + versionName + ") available. Download it here: " + plugin.getDescription().getWebsite());
                 }
             }

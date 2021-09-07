@@ -3,7 +3,7 @@ package com.kaltiz.dsTitle.storage;
 import com.kaltiz.dsTitle.TitleManager;
 
 import denniss17.dsTitle.DSTitle;
-import denniss17.dsTitle.Title;
+import denniss17.dsTitle.objects.Title;
 
 import org.bukkit.OfflinePlayer;
 
@@ -23,12 +23,15 @@ public class SQLTitleStorage extends TitleStorage {
     {
         super(plugin,manager);
 
-        this.driver = DatabaseType.match(plugin.getConfig().getString("storage.database.driver"));
+        this.driver = DatabaseType.match(plugin.getConfig().getString(("storage.database.driver")));
         if(this.driver!=null) {
         	if(this.driver.equals(DatabaseType.SQLITE)){
             	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
             }else{
-            	this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
+            	if(plugin.getConfig().getString("storage.database.autoReconnect").equalsIgnoreCase("true"))
+            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
+            	else
+            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
             }
             this.username = plugin.getConfig().getString("storage.database.username");
             this.password = plugin.getConfig().getString("storage.database.password");
@@ -44,7 +47,7 @@ public class SQLTitleStorage extends TitleStorage {
             }
 
             // Create table
-            String qry = "CREATE TABLE IF NOT EXISTS `players` (`name` VARCHAR(16) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
+            String qry = "CREATE TABLE IF NOT EXISTS `players` (`uuid` VARCHAR(64) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
             Statement stmt = this.conn.createStatement();
             stmt.execute(qry);
         }else {
@@ -92,12 +95,12 @@ public class SQLTitleStorage extends TitleStorage {
     @Override
     public void loadTitlesPlayer(OfflinePlayer target)
     {
-        String prefix = plugin.getTitleManager().getDefaultPrefix();
-        String suffix = plugin.getTitleManager().getDefaultSuffix();
-        String qry = "SELECT * FROM `players` WHERE `name` = ?;";
+        String prefix = plugin.getTitleManager().titlesConfig.getDefaultPrefix();
+        String suffix = plugin.getTitleManager().titlesConfig.getDefaultSuffix();
+        String qry = "SELECT * FROM `players` WHERE `uuid` = ?;";
         try {
             PreparedStatement stmt = this.getConnection().prepareStatement(qry);
-            stmt.setString(1, target.getName());
+            stmt.setString(1, target.getUniqueId().toString());
             ResultSet result = stmt.executeQuery();
 
             if(result.next())
@@ -129,22 +132,22 @@ public class SQLTitleStorage extends TitleStorage {
         // Check if the Player has an Existing Row
         try{
             String existing;
-            String qry = "SELECT `name` FROM `players` WHERE `name` = ?;";
+            String qry = "SELECT `uuid` FROM `players` WHERE `uuid` = ?;";
             PreparedStatement stmt = this.conn.prepareStatement(qry);
-            stmt.setString(1, target.getName());
+            stmt.setString(1, target.getUniqueId().toString());
             
             ResultSet result = stmt.executeQuery();
-            existing = result.next() ? result.getString("name") : null;
+            existing = result.next() ? result.getString("uuid") : null;
             stmt.close();
 
             if(existing != null){
-            	stmt = this.getConnection().prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `name` = ?;");
+            	stmt = this.getConnection().prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `uuid` = ?;");
             	stmt.setString(1, prefix);
             	stmt.setString(2, suffix);
-            	stmt.setString(3, target.getName());
+            	stmt.setString(3, target.getUniqueId().toString());
             }else{
             	stmt = this.getConnection().prepareStatement("INSERT INTO `players` VALUES (?, ?, ?);");
-            	stmt.setString(1, target.getName());
+            	stmt.setString(1, target.getUniqueId().toString());
             	stmt.setString(2, prefix);
             	stmt.setString(3, suffix);
             }

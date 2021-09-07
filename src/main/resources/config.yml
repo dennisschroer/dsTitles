@@ -51,6 +51,8 @@ storage:
     url: 'mysql://127.0.0.1:3306/dstitle'
     # Boolean to use SSL in case of mysql database
     useSSL: false
+    # Whether to use the autoReconnect feature of Mysql
+    autoReconnect: true
     # Username for database. Not needed when using SQLITE
     username: 'root'
     # Password for database. Not needed when using SQLITE
@@ -66,6 +68,7 @@ messages:
   error_prefix_exists: '&8[&eTitles&8] &cThat prefix already exists!'
   error_suffix_exists: '&8[&eTitles&8] &cThat suffix already exists!'
   error_headtag_too_long: '&8[&eTitles&8] &cA headtag can have a maximum length of 16!'
+  error_has_occured: '&8[&eTitles&8] &cAn error has occured!'
   prefix_set: '&8[&eTitles&8] &ePrefix set!'
   suffix_set: '&8[&eTitles&8] &eSuffix set!'
   title_cleared: '&8[&eTitles&8] &eTitle cleared!'

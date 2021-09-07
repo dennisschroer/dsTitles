@@ -13,6 +13,8 @@ import com.kaltiz.dsTitle.storage.SQLTitleStorage;
 import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
+import denniss17.dsTitle.Placeholders.PlaceholderAPIHook;
+
 public class DSTitle extends JavaPlugin{	
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
@@ -40,10 +42,10 @@ public class DSTitle extends JavaPlugin{
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
 		{
-			if (denniss17.dsTitle.Placeholders.PlaceholderAPIHook.RegisterPlaceHolderHooks(title)) {
-		        getLogger().info("dsTitle was successfully registered with PlaceHolderAPI!");
-		        placeHolders = true;
-		    }
+			if(new PlaceholderAPIHook(title).register()) {
+				getLogger().info("dsTitle was successfully registered with PlaceholderAPI!");
+				placeHolders = true;
+			}
 		}
 		// Register listeners
 		Listener playerListener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
@@ -75,14 +77,6 @@ public class DSTitle extends JavaPlugin{
 	@Override
 	public void onDisable() {
 		super.onDisable();
-		if(placeHolders){
-			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
-			{
-				if (denniss17.dsTitle.Placeholders.PlaceholderAPIHook.unRegisterPlaceHolderHooks(title)) {
-					getLogger().info("dsTitle was successfully unregistered with PlaceHolderAPI!");
-				}
-			}
-		}
 		if(this.storage instanceof SQLTitleStorage){
 			try {
 				((SQLTitleStorage)this.storage).closeConnection();
@@ -114,10 +108,12 @@ public class DSTitle extends JavaPlugin{
         String type = getConfig().getString("storage.type");
 
         // Reload the TitleManager
-        this.titleManager = new TitleManager(this);
-
+        if(titleManager !=null)
+        	titleManager.reloadTitleConfigs();
+        else
+        	titleManager = new TitleManager(this);
         // Default to YML Storage
-        if((type.equalsIgnoreCase("database")))
+        if((type.equalsIgnoreCase("database") || type.equalsIgnoreCase("sql")) && this.storage == null)
         {
             try {
                 this.storage = new SQLTitleStorage(this,titleManager);

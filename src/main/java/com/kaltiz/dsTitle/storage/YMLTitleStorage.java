@@ -2,7 +2,8 @@ package com.kaltiz.dsTitle.storage;
 
 import com.kaltiz.dsTitle.TitleManager;
 import denniss17.dsTitle.DSTitle;
-import denniss17.dsTitle.Title;
+import denniss17.dsTitle.objects.Title;
+
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -35,13 +36,13 @@ public class YMLTitleStorage extends TitleStorage {
     @Override
     public void loadTitlesPlayer(OfflinePlayer target)
     {
-    	if(!playersConfig.contains("players." + target.getName())){
+    	if(!playersConfig.contains("players." + target.getUniqueId())){
     		// First join -> load default titles
-    		manager.setPlayerPrefix(plugin.getTitleManager().getDefaultPrefix(), target);
-    		manager.setPlayerSuffix(plugin.getTitleManager().getDefaultSuffix(), target);
+    		manager.setPlayerPrefix(plugin.getTitleManager().titlesConfig.getDefaultPrefix(), target);
+    		manager.setPlayerSuffix(plugin.getTitleManager().titlesConfig.getDefaultSuffix(), target);
     	}else{
-    		manager.setPlayerPrefix(playersConfig.getString("players." + target.getName() + ".prefix"), target);
-            manager.setPlayerSuffix(playersConfig.getString("players." + target.getName() + ".suffix"), target);
+    		manager.setPlayerPrefix(playersConfig.getString("players." + target.getUniqueId() + ".prefix"), target);
+            manager.setPlayerSuffix(playersConfig.getString("players." + target.getUniqueId() + ".suffix"), target);
     	}
     }
 
@@ -52,8 +53,8 @@ public class YMLTitleStorage extends TitleStorage {
         Title suffix = manager.getPlayerSuffix(target);
 
         // Titles can also be null
-        playersConfig.set("players." + target.getName() + ".prefix", prefix==null ? null : prefix.name);
-        playersConfig.set("players." + target.getName() + ".suffix", suffix==null ? null : suffix.name);
+        playersConfig.set("players." + target.getUniqueId() + ".prefix", prefix==null ? null : prefix.name);
+        playersConfig.set("players." + target.getUniqueId() + ".suffix", suffix==null ? null : suffix.name);
 
         // Save to file
         savePlayerConfig();

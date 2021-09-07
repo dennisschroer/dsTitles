@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import denniss17.dsTitle.Title;
+
+import denniss17.dsTitle.objects.Title;
 
 @SuppressWarnings("deprecation")
 public class TeamManager {	

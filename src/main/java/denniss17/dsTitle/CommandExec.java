@@ -11,7 +11,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import denniss17.dsTitle.Title.Type;
+import denniss17.dsTitle.objects.Prefix;
+import denniss17.dsTitle.objects.Suffix;
+import denniss17.dsTitle.objects.Title;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -95,35 +97,34 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		String name = args[2];
-		Type type;
-		if(args[1].equals("prefix")){
-			type = Type.PREFIX;
-		}else if(args[1].equals("suffix")){
-			type = Type.SUFFIX;
-		}else{
-			return false;
-		}
-		
-		
+				
 		// Check existence
-		if(type.equals(Type.PREFIX) && plugin.getTitleManager().prefixExists(name)){
+		if(args[1].equals("prefix") && plugin.getTitleManager().prefixExists(name)){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_exists"));
 			return true;
 		}
-		if(type.equals(Type.SUFFIX) && plugin.getTitleManager().suffixExists(name)){
+		if(args[1].equals("suffix") && plugin.getTitleManager().suffixExists(name)){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_exists"));
 			return true;
 		}
 		
-		// Create new title			
-		Title title = new Title(name, type, null, null, null, null);
-		
+		// Create new title
+		Title title = null;
+		if(args[1].equals("prefix")) {
+			title = new Prefix(name, null, null, null, null);
+		}else if(args[1].equals("suffix")) {
+			title = new Suffix(name, null, null, null, null);
+		}
 		// Save new title
-        plugin.getTitleManager().saveTitle(title);
-		
-		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_added"));
-		
-		return true;
+		if(!title.equals(null)) {
+			plugin.getTitleManager().titlesConfig.saveTitle(title);
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_added"));
+			return true;
+		}else {
+			plugin.sendMessage(sender, plugin.getConfig().getString("error_has_occured"));
+			return true;
+		}
+        
 	}
 
 	private boolean cmdTitleEdit(CommandSender sender, Command cmd,  String commandlabel, String[] args) {
@@ -143,18 +144,10 @@ public class CommandExec implements CommandExecutor{
 			value+= args[i] + " ";
 		}
 		value = value.trim();
-		Type type;
-		if(args[1].equals("prefix")){
-			type = Type.PREFIX;
-		}else if(args[1].equals("suffix")){
-			type = Type.SUFFIX;
-		}else{
-			return false;
-		}
 		
 		// Get title
 		Title title = null;
-		if(type.equals(Type.PREFIX)){
+		if(args[1].equals("prefix")){
 			if (plugin.getTitleManager().prefixExists(name)){
 				title=plugin.getTitleManager().getPrefix(name);
 			}else{
@@ -162,7 +155,7 @@ public class CommandExec implements CommandExecutor{
 				return true;
 			}
 		}
-		if(type.equals(Type.SUFFIX)){
+		if(args[1].equals("suffix")){
 			if(plugin.getTitleManager().suffixExists(name)){
 				title=plugin.getTitleManager().getSuffix(name);
 			}else{
@@ -189,7 +182,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		// Save title title
-        plugin.getTitleManager().saveTitle(title);
+        plugin.getTitleManager().titlesConfig.saveTitle(title);
 		
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_edited"));
 		
@@ -257,7 +250,7 @@ public class CommandExec implements CommandExecutor{
 				}
 				
 				// Set new title
-                plugin.getTitleManager().setPlayerPrefix(title, target);
+                plugin.getTitleManager().setPlayerPrefix((Prefix) title, target);
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_set"));
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
@@ -309,7 +302,7 @@ public class CommandExec implements CommandExecutor{
 				}
 				
 				// Set new title
-                plugin.getTitleManager().setPlayerSuffix(title, target);
+                plugin.getTitleManager().setPlayerSuffix((Suffix) title, target);
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
@@ -377,17 +370,22 @@ public class CommandExec implements CommandExecutor{
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.grant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){
 				if(args.length<4) return false;
-				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
-				Title title = type.equals(Type.SUFFIX) ? plugin.getTitleManager().getSuffix(args[3]) : plugin.getTitleManager().getPrefix(args[3]);
+				Title title = null;
+                if(args[1].equalsIgnoreCase("prefix")) {
+					title = plugin.getTitleManager().getPrefix(args[3]);
+				}
+				if(args[1].equalsIgnoreCase("suffix")) {
+					title = plugin.getTitleManager().getSuffix(args[3]);
+				}
 				if(title!=null){
 					plugin.getPermissionManager().getVaultPermissionInstance().playerAdd((String)null, args[2], title.permission);
-					if(type.equals(Type.PREFIX)){
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_granted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_granted").replace("{title}", title.name).replace("{name}", args[2]));
 					}
 				}else{
-					if(type.equals(Type.PREFIX)){
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_not_found"));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_not_found"));
@@ -409,17 +407,22 @@ public class CommandExec implements CommandExecutor{
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.ungrant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){
 				if(args.length<4) return false;
-				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
-				Title title = type.equals(Type.SUFFIX) ? plugin.getTitleManager().getSuffix(args[3]) : plugin.getTitleManager().getPrefix(args[3]);
+				Title title = null;
+                if(args[1].equalsIgnoreCase("prefix")) {
+					title = plugin.getTitleManager().getPrefix(args[3]);
+				}
+				if(args[1].equalsIgnoreCase("suffix")) {
+					title = plugin.getTitleManager().getSuffix(args[3]);
+				}
 				if(title!=null){
 					plugin.getPermissionManager().getVaultPermissionInstance().playerRemove((String)null, args[2], title.permission);
-					if(type.equals(Type.PREFIX)){
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_ungranted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_ungranted").replace("{title}", title.name).replace("{name}", args[2]));
 					}
 				}else{
-					if(type.equals(Type.PREFIX)){
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_not_found"));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_not_found"));
