@@ -229,6 +229,8 @@ public class CommandExec implements CommandExecutor{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.target_is_not_online"));
 				return true;
 			}
+		}else {
+			target = player;
 		}
 		
 		// Check permission
@@ -289,6 +291,8 @@ public class CommandExec implements CommandExecutor{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.target_is_not_online"));
 				return true;
 			}
+		}else {
+			target = player;
 		}
 		
 		// Check permission
