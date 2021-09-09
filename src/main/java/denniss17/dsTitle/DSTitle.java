@@ -14,6 +14,7 @@ import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
 import denniss17.dsTitle.Placeholders.PlaceholderAPIHook;
+import denniss17.dsTitle.permissions.PermissionManager;
 
 public class DSTitle extends JavaPlugin{	
 	private PermissionManager permissionManager;

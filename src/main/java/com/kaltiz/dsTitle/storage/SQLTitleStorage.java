@@ -29,9 +29,9 @@ public class SQLTitleStorage extends TitleStorage {
             	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
             }else{
             	if(plugin.getConfig().getString("storage.database.autoReconnect").equalsIgnoreCase("true"))
-            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
+            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
             	else
-            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
+            		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
             }
             this.username = plugin.getConfig().getString("storage.database.username");
             this.password = plugin.getConfig().getString("storage.database.password");

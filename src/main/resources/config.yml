@@ -32,7 +32,7 @@ general:
   # Disable this if you have another plugin which handles this or uses teams of the Bukkit scoreboard api.
   # Note : You can still use the placeholders in nametags if another plugin is handling nametags and that
   # plugin supports PlaceHolderAPI or DeluxeChat
-  use_nametag: true
+  use_nametag: false
   # Should the plugin check for updates and notify all players with ds_title.admin?
   check_for_updates: true
   # The time between two checks for a new version, in minutes (default 180 = 3 hours)
@@ -47,8 +47,10 @@ storage:
   database:
     # Database driver. Possible values: H2, MYSQL, POSTGRE, SQLITE
     driver: 'mysql'
-    # Url of the database, or filename in case of SQLITE
-    url: 'mysql://127.0.0.1:3306/dstitle'
+    # Url of the server, or filename in case of SQLITE
+    url: 'mysql://127.0.0.1:3306/'
+    # The Name of the Database to use
+    database: 'dstitle'
     # Boolean to use SSL in case of mysql database
     useSSL: false
     # Whether to use the autoReconnect feature of Mysql
@@ -61,7 +63,7 @@ messages:
   # I think this doesn't need explanation
   error_no_player: '&8[&eTitles&8] &cOnly players can use this command'
   error_no_permission: '&8[&eTitles&8] &cYou don`t have enough permissions for this command'
-  error_no_vault: '&8[&eTitles&8] &cVault needs to be installed/enabled to use this command'
+  error_no_vault: '&8[&eTitles&8] &cVault or LuckPerms needs to be installed/enabled to use this command'
   error_no_valid_field: '&8[&eTitles&8] &cThat is not a valid field. Valid fields: &fchattag&c, &fheadtag&c, &fpermission&c, &fdescription'
   error_prefix_not_found: '&8[&eTitles&8] &cThat prefix is not found!'
   error_suffix_not_found: '&8[&eTitles&8] &cThat suffix is not found!'
@@ -69,6 +71,7 @@ messages:
   error_suffix_exists: '&8[&eTitles&8] &cThat suffix already exists!'
   error_headtag_too_long: '&8[&eTitles&8] &cA headtag can have a maximum length of 16!'
   error_has_occured: '&8[&eTitles&8] &cAn error has occured!'
+  target_is_not_online: '&8[&eTitles&8] &cTarget is not online! Target must be online to set their title.'
   prefix_set: '&8[&eTitles&8] &ePrefix set!'
   suffix_set: '&8[&eTitles&8] &eSuffix set!'
   title_cleared: '&8[&eTitles&8] &eTitle cleared!'

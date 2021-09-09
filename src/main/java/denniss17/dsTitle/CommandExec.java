@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -211,51 +212,59 @@ public class CommandExec implements CommandExecutor{
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleSetPrefix(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(args.length<3) return false;
 		
 		// Check if player
-		Player player;
+		Player player = null;
 		if(sender instanceof Player){
 			player = (Player)sender;
-		}else{
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_player"));
-			return true;
 		}
 		
-		// Get target
-		@SuppressWarnings("deprecation")
-		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
+		OfflinePlayer target = null;
+		if(args.length>3) {
+			target = plugin.getServer().getOfflinePlayer(args[3]);
+			if(!target.isOnline()) {
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.target_is_not_online"));
+				return true;
+			}
+		}
 		
 		// Check permission
-		if(target.getName().equals(player.getName())){
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.self")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-				return true;
+		if(player!=null)
+			if(target.getName().equals(player.getName())){
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.self")){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
+			}else{
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.other") && sender instanceof Player){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
 			}
-		}else{
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.other")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-				return true;
-			}
-		}
 		
 		// Check prefix
 		if(plugin.getTitleManager().prefixExists(args[2])){
 			Title title = plugin.getTitleManager().getPrefix(args[2]);
-			if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
-				// Clean up previous title
-				if(plugin.getConfig().getBoolean("general.use_nametag")){
-					plugin.getTeamManager().removePlayerFromTeam(player);
+			if(player!=null) {
+				if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
+					// Clean up previous title
+					if(plugin.getConfig().getBoolean("general.use_nametag")){
+						plugin.getTeamManager().removePlayerFromTeam(player);
+					}
+					
+					// Set new title
+	                plugin.getTitleManager().setPlayerPrefix((Prefix) title, target);
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_set"));
+				}else{
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
 				}
-				
-				// Set new title
-                plugin.getTitleManager().setPlayerPrefix((Prefix) title, target);
+			}else {
+				plugin.getTitleManager().setPlayerPrefix((Prefix) title, target);
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_set"));
-			}else{
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-			}
-			
+			}		
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_not_found"));
 		}
@@ -268,46 +277,55 @@ public class CommandExec implements CommandExecutor{
 		if(args.length<3) return false;
 		
 		// Check if player
-		Player player;
+		Player player = null;
 		if(sender instanceof Player){
 			player = (Player)sender;
-		}else{
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_player"));
-			return true;
 		}
 		
-		// Get target
-		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
-		
-		// Check permission
-		if(target.getName().equals(player.getName())){
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.self")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+		OfflinePlayer target = null;
+		if(args.length>3) {
+			target = plugin.getServer().getOfflinePlayer(args[3]);
+			if(!target.isOnline()) {
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.target_is_not_online"));
 				return true;
 			}
-		}else{
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.other")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-				return true;
+		}
+		
+		// Check permission
+		if(player!=null) {
+			if(target.getName().equals(player.getName())){
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.self")){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
+			}else {
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.other")){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
 			}
 		}
 		
 		// Check suffix
 		if(plugin.getTitleManager().suffixExists(args[2])){
 			Title title = plugin.getTitleManager().getSuffix(args[2]);
-			if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
-				// Clean up previous title
-				if(plugin.getConfig().getBoolean("general.use_nametag")){
-					plugin.getTeamManager().removePlayerFromTeam(player);
+			if(player!=null) {
+				if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
+					// Clean up previous title
+					if(plugin.getConfig().getBoolean("general.use_nametag")){
+						plugin.getTeamManager().removePlayerFromTeam(player);
+					}
+					
+					// Set new title
+	                plugin.getTitleManager().setPlayerSuffix((Suffix) title, target);
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
+				}else{
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
 				}
-				
-				// Set new title
-                plugin.getTitleManager().setPlayerSuffix((Suffix) title, target);
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
-			}else{
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+			}else {
+				 plugin.getTitleManager().setPlayerSuffix((Suffix) title, target);
+				 plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
 			}
-			
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_not_found"));
 		}
@@ -368,7 +386,7 @@ public class CommandExec implements CommandExecutor{
 	@SuppressWarnings("deprecation")
 	private boolean cmdTitleGrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.grant")){
-			if(plugin.getPermissionManager().isVaultEnabled()){
+			if(plugin.getPermissionManager().isVaultEnabled() || plugin.getPermissionManager().isLuckPermsEnabled()){
 				if(args.length<4) return false;
 				Title title = null;
                 if(args[1].equalsIgnoreCase("prefix")) {
@@ -378,7 +396,10 @@ public class CommandExec implements CommandExecutor{
 					title = plugin.getTitleManager().getSuffix(args[3]);
 				}
 				if(title!=null){
-					plugin.getPermissionManager().getVaultPermissionInstance().playerAdd((String)null, args[2], title.permission);
+					if(Bukkit.getOfflinePlayer(args[2]).isOnline()) 
+						plugin.getPermissionManager().addPermission(Bukkit.getPlayer(args[2]), title.permission);
+					else
+						plugin.getPermissionManager().vHook.getVaultPermissionInstance().playerAdd((String)null, args[2], title.permission);
 					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_granted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
@@ -394,7 +415,8 @@ public class CommandExec implements CommandExecutor{
 				
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_vault"));
-			}			
+			}
+			//else console sender
 			return true;
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
@@ -405,7 +427,7 @@ public class CommandExec implements CommandExecutor{
 	@SuppressWarnings("deprecation")
 	private boolean cmdTitleUngrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.ungrant")){
-			if(plugin.getPermissionManager().isVaultEnabled()){
+			if(plugin.getPermissionManager().isVaultEnabled() || plugin.getPermissionManager().isLuckPermsEnabled()){
 				if(args.length<4) return false;
 				Title title = null;
                 if(args[1].equalsIgnoreCase("prefix")) {
@@ -415,7 +437,10 @@ public class CommandExec implements CommandExecutor{
 					title = plugin.getTitleManager().getSuffix(args[3]);
 				}
 				if(title!=null){
-					plugin.getPermissionManager().getVaultPermissionInstance().playerRemove((String)null, args[2], title.permission);
+					if(Bukkit.getOfflinePlayer(args[2]).isOnline())
+						plugin.getPermissionManager().removePermission(Bukkit.getPlayer(args[2]), title.permission);
+					else
+						plugin.getPermissionManager().vHook.getVaultPermissionInstance().playerRemove((String)null, args[2], title.permission);
 					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_ungranted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
@@ -502,5 +527,7 @@ public class CommandExec implements CommandExecutor{
 				}
 			}		
 		}
+		
+		
 	}
 }
