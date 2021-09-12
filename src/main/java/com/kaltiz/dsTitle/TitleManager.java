@@ -126,6 +126,40 @@ public class TitleManager {
     	}
     	return "ChatTags are Disabled";
     }
+    
+    public String getPrefixSymbol(OfflinePlayer target) {
+    	if(plugin.placeHolders){
+	    	String symbol;
+	    	if(target!=null){
+	    		if(getPlayerPrefix(target)==null) {
+	    			symbol = null;
+	    		}
+	    		if(getPlayerPrefix(target).symbol!=null){
+	    			symbol = getPlayerPrefix(target).symbol;
+	    			return symbol;
+	    		}    		
+	    	}    	
+	    	return null;
+    	}
+    	return "Symbols are Disabled";
+    }
+    
+    public String getSuffixSymbol(OfflinePlayer target) {
+    	if(plugin.placeHolders){
+	    	String symbol;
+	    	if(target!=null){
+	    		if(getPlayerSuffix(target)==null) {
+	    			symbol = null;
+	    		}
+	    		if(getPlayerSuffix(target).symbol!=null){
+	    			symbol = getPlayerSuffix(target).symbol;
+	    			return symbol;
+	    		}    		
+	    	}    	
+	    	return null;
+    	}
+    	return "Symbols are Disabled";
+    }
 
     /**
      * Sets the Players Prefix, Only in Memory
@@ -270,20 +304,6 @@ public class TitleManager {
         return titlesConfig.getSuffixbyName(name);
     }
 
-	public static UUID getUUIDfromPlayerName(String playerName) {
-	    OfflinePlayer op = Bukkit.getOfflinePlayer(playerName);
-	    if (!op.equals((Object)null))
-	      return op.getUniqueId(); 
-	    return null;
-	}
-	  
-	public static String getPlayerNamefromUUID(UUID uuid) {
-	    OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
-	    if (!op.equals((Object)null))
-	      return op.getName(); 
-	    return "";
-	}
-	
 }
 
 

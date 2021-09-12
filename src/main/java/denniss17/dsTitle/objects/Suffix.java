@@ -10,7 +10,7 @@ public class Suffix extends Title implements Serializable
 	 */
 	private static final long serialVersionUID = -8902372653829023225L;
 
-	public Suffix(String name, String chatTag, String headTag, String permission, String description) {
-		super(name, chatTag, headTag, permission, description);
+	public Suffix(String name, String chatTag, String headTag, String permission, String description, String symbol) {
+		super(name, chatTag, headTag, permission, description, symbol);
 	}
 }

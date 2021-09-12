@@ -27,11 +27,13 @@ prefixes:
     headtag: '&aNoob'
     permission: 'title.noob.prefix'
     description: '&6&oA &d&ospecial &6&oTitle for &d&oSpecial &6&oPeople'
+    symbol: '&aN'
 suffixes:
   Noob:
     chattag: '&aNoob'
     headtag: '&aNoob'
     permission: 'title.noob.suffix'
     description: '&6&oA &d&ospecial &6&oTitle for &d&oSpecial &6&oPeople'
+    symbol: '&aN'
 default_prefix: 'Noob'
 default_suffix: 'Noob'

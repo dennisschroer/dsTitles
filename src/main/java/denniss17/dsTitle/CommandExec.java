@@ -112,9 +112,9 @@ public class CommandExec implements CommandExecutor{
 		// Create new title
 		Title title = null;
 		if(args[1].equals("prefix")) {
-			title = new Prefix(name, null, null, null, null);
+			title = new Prefix(name, null, null, null, null, null);
 		}else if(args[1].equals("suffix")) {
-			title = new Suffix(name, null, null, null, null);
+			title = new Suffix(name, null, null, null, null, null);
 		}
 		// Save new title
 		if(!title.equals(null)) {
@@ -177,6 +177,12 @@ public class CommandExec implements CommandExecutor{
 			title.permission = value;
 		}else if(field.equals("description")){
 			title.description = value;
+		}else if(field.equals("symbol")) {
+			if(value.length()>1) {
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_symbol_too_long"));
+			    return true;
+			}
+			title.symbol = value;
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_valid_field"));
 			return false;

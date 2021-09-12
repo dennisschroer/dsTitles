@@ -80,6 +80,42 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
               return " ";
             }
 		}
+		if(identifier.equals("prefix_symbol")){
+        	TitleManager man = plugin.getTitleManager();
+            if (man != null)
+            {
+          	String prefixSymbol;
+          	prefixSymbol = man.getPrefixSymbol(player);
+              if (prefixSymbol != null)
+              {
+                return man.getPrefixSymbol(player);
+              }else
+              {
+                return " ";
+              }
+            }else
+            {
+              return " ";
+            }
+		}
+		if(identifier.equals("suffix_symbol")){
+        	TitleManager man = plugin.getTitleManager();
+            if (man != null)
+            {
+          	String suffixSymbol;
+          	suffixSymbol = man.getSuffixSymbol(player);
+              if (suffixSymbol != null)
+              {
+                return man.getSuffixSymbol(player);
+              }else
+              {
+                return " ";
+              }
+            }else
+            {
+              return " ";
+            }
+		}
 		return null;
 	}
 }

@@ -1,6 +1,5 @@
 package denniss17.dsTitle.Placeholders;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.kaltiz.dsTitle.TitleManager;
@@ -60,5 +59,57 @@ public class mvdwPlaceholderAPIHook{
 				}
 		};
 		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_suffix", dsTitleSuffix); 
+	}
+	
+	public static boolean dsTitleSuffixSymbolHook(){
+		PlaceholderReplacer dsTitleSuffix = new PlaceholderReplacer (){
+			@Override
+			public String onPlaceholderReplace (
+				PlaceholderReplaceEvent event) {
+					if(event.getPlayer()!=null){
+						Player p = event.getPlayer();
+						if(DSTitle.title!=null){
+							TitleManager man = DSTitle.title.getTitleManager();
+		                    if (man != null)
+		                    {
+		                    	String symbol;
+		                    	symbol = man.getSuffixSymbol(p);
+		                    	if (symbol != null)
+		                    	{
+		                    		return man.getSuffixSymbol(p);
+		                    	}
+		                    }
+						}						
+					}	
+					return "";
+				}
+		};
+		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_suffix_symbol", dsTitleSuffix); 
+	}
+	
+	public static boolean dsTitlePrefixSymbolHook(){
+		PlaceholderReplacer dsTitleSuffix = new PlaceholderReplacer (){
+			@Override
+			public String onPlaceholderReplace (
+				PlaceholderReplaceEvent event) {
+					if(event.getPlayer()!=null){
+						Player p = event.getPlayer();
+						if(DSTitle.title!=null){
+							TitleManager man = DSTitle.title.getTitleManager();
+		                    if (man != null)
+		                    {
+		                    	String symbol;
+		                    	symbol = man.getPrefixSymbol(p);
+		                    	if (symbol != null)
+		                    	{
+		                    		return man.getPrefixSymbol(p);
+		                    	}
+		                    }
+						}						
+					}	
+					return "";
+				}
+		};
+		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_prefix_symbol", dsTitleSuffix); 
 	}
 }

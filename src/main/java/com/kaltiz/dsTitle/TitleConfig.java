@@ -83,6 +83,7 @@ public class TitleConfig
         titleConfig.set(path + "description", title.description);
         titleConfig.set(path + "chattag", title.chatTag);
         titleConfig.set(path + "headtag", title.headTag);
+        titleConfig.set(path + "symbol", title.symbol);
 
         saveTitleConfig();
 
@@ -142,13 +143,14 @@ public class TitleConfig
             String description  = titleSection.getString("description");
             String chatTag      = titleSection.getString("chattag");
             String headTag      = titleSection.getString("headtag");
+            String symbol       = titleSection.getString("symbol");
             if (headTag!=null && headTag.length() > 16)
             {
                 plugin.getLogger().warning("Title  '" + name + "has been disabled!");
                 plugin.getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
                 return null;
             }
-            return new Suffix(name, chatTag, headTag, permission, description);
+            return new Suffix(name, chatTag, headTag, permission, description, symbol);
         }
         else
         {
@@ -178,13 +180,14 @@ public class TitleConfig
             String description  = titleSection.getString("description");
             String chatTag      = titleSection.getString("chattag");
             String headTag      = titleSection.getString("headtag");
+            String symbol       = titleSection.getString("symbol");
             if (headTag!=null && headTag.length() > 16)
             {
                 plugin.getLogger().warning("Title  '" + name + "has been disabled!");
                 plugin.getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
                 return null;
             }
-            return new Prefix(name, chatTag, headTag, permission, description);
+            return new Prefix(name, chatTag, headTag, permission, description, symbol);
         }
         else
         {

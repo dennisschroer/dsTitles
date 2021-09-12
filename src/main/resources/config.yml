@@ -70,6 +70,7 @@ messages:
   error_prefix_exists: '&8[&eTitles&8] &cThat prefix already exists!'
   error_suffix_exists: '&8[&eTitles&8] &cThat suffix already exists!'
   error_headtag_too_long: '&8[&eTitles&8] &cA headtag can have a maximum length of 16!'
+  error_symbol_too_long: "'&8[&eTitles&8] &cA symbol can have a maximum character length of 1! It's meant to abbreviate a prefix!"
   error_has_occured: '&8[&eTitles&8] &cAn error has occured!'
   target_is_not_online: '&8[&eTitles&8] &cTarget is not online! Target must be online to set their title.'
   prefix_set: '&8[&eTitles&8] &ePrefix set!'
