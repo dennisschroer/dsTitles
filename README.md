@@ -11,7 +11,7 @@ New Features to this Fork :
 * Fixed a few bugs, including the invisible players still having their nametags shown when dsTitle is handling nametags
 * Added a prefix and suffix "symbol". Basically a one letter abbreviation of the prefix/suffix that can be used to shorten tags or use WolfieMario's Icon pack to set title icons.
 
-For more info go to http://dev.bukkit.org/server-mods/dstitle/
+For more info go to https://www.spigotmc.org/resources/dstitles.96043/
 
 To compile, make sure you are running at least java 16 and Apache Maven.
 Download the contents of this repo, then, from the command line,
