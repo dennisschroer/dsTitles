@@ -4,10 +4,11 @@ import com.kaltiz.dsTitle.TitleManager;
 import denniss17.dsTitle.DSTitle;
 import denniss17.dsTitle.objects.Title;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
+import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -57,11 +58,11 @@ public class YMLTitleStorage extends TitleStorage {
         playersConfig.set("players." + target.getUniqueId() + ".suffix", suffix==null ? null : suffix.name);
 
         // Save to file
-        savePlayerConfig();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> savePlayerConfig(plugin, playersConfig, playersFile));
     }
 
 
-    protected void savePlayerConfig() {
+    protected void savePlayerConfig(Plugin plugin, FileConfiguration playersConfig, File playersFile) {
         if (playersConfig == null || playersFile == null) {
             return;
         }

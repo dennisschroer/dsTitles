@@ -5,9 +5,11 @@ import com.kaltiz.dsTitle.TitleManager;
 import denniss17.dsTitle.DSTitle;
 import denniss17.dsTitle.objects.Title;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.*;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class SQLTitleStorage extends TitleStorage {
@@ -16,13 +18,14 @@ public class SQLTitleStorage extends TitleStorage {
     protected String url = "";
     protected String username = "";
     protected String password = "";
+    private DSTitle plugin;
 
     private Connection conn = null;
 
     public SQLTitleStorage(DSTitle plugin, TitleManager manager) throws SQLException
     {
         super(plugin,manager);
-
+        this.plugin = plugin;
         this.driver = DatabaseType.match(plugin.getConfig().getString(("storage.database.driver")));
         if(this.driver!=null) {
         	if(this.driver.equals(DatabaseType.SQLITE)){
@@ -119,14 +122,17 @@ public class SQLTitleStorage extends TitleStorage {
         manager.setPlayerSuffix(suffix, target);
     }
 
-    @SuppressWarnings("resource")
-	@Override
+    @Override
     public void saveTitlesPlayer(OfflinePlayer target)
     {
         Title p = manager.getPlayerPrefix(target);
         Title s = manager.getPlayerSuffix(target);
-
-        String prefix = p == null ? null : p.name;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> saveAsync(p, s, target.getUniqueId()));      
+    }
+    
+    @SuppressWarnings("resource")
+	private void saveAsync(Title p, Title s, UUID id) {
+    	String prefix = p == null ? null : p.name;
         String suffix = s == null ? null : s.name;
 
         // Check if the Player has an Existing Row
@@ -134,7 +140,7 @@ public class SQLTitleStorage extends TitleStorage {
             String existing;
             String qry = "SELECT `uuid` FROM `players` WHERE `uuid` = ?;";
             PreparedStatement stmt = this.conn.prepareStatement(qry);
-            stmt.setString(1, target.getUniqueId().toString());
+            stmt.setString(1, id.toString());
             
             ResultSet result = stmt.executeQuery();
             existing = result.next() ? result.getString("uuid") : null;
@@ -144,17 +150,17 @@ public class SQLTitleStorage extends TitleStorage {
             	stmt = this.getConnection().prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `uuid` = ?;");
             	stmt.setString(1, prefix);
             	stmt.setString(2, suffix);
-            	stmt.setString(3, target.getUniqueId().toString());
+            	stmt.setString(3, id.toString());
             }else{
             	stmt = this.getConnection().prepareStatement("INSERT INTO `players` VALUES (?, ?, ?);");
-            	stmt.setString(1, target.getUniqueId().toString());
+            	stmt.setString(1, id.toString());
             	stmt.setString(2, prefix);
             	stmt.setString(3, suffix);
             }
             stmt.executeUpdate();
             stmt.close();
         } catch (SQLException ex) {
-        	plugin.getLogger().log(Level.SEVERE,"Could not save titles of player " + target.getName());
+        	plugin.getLogger().log(Level.SEVERE,"Could not save titles of player " + id.toString());
             plugin.getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
         }
     }
