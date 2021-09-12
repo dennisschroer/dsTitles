@@ -59,22 +59,12 @@ public class PermissionManager {
 	
 	/** Check if a player has this permission */
 	public boolean hasPermission(Player player, String perm){
-		if(isVaultEnabled()) {
-			return vHook.hasPermission(player, perm);
-		}else {
-			return player.hasPermission(perm);
-		}
-		//check in Luckperms and Vault
+		return player.hasPermission(perm);
 	}
 	
 	/** Check if a player has this permission */
 	public boolean hasPermission(CommandSender sender, String perm){
-		if(isVaultEnabled()) {
-			return vHook.hasPermission(sender, perm);
-		}else {
-			return sender.hasPermission(perm);
-		}
-		//check in Luckperms and Vault
+		return sender.hasPermission(perm);
 	}
 	
 	/**

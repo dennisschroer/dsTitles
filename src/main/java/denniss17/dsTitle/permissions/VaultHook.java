@@ -1,6 +1,5 @@
 package denniss17.dsTitle.permissions;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -39,16 +38,6 @@ public class VaultHook{
 	
 	public void removePermission(Player player, String perm){
 		this.permission.playerRemove(player, perm);
-	}
-	
-	/** Check if a player has this permission */
-	public boolean hasPermission(Player player, String perm){
-		return this.permission.has(player, perm);
-	}
-	
-	/** Check if a player has this permission */
-	public boolean hasPermission(CommandSender sender, String perm){
-		return this.permission.has(sender, perm);
 	}
 	
 	public Permission getVaultPermissionInstance() {
