@@ -19,11 +19,12 @@
 # Chattag, headtag, permission and description are optional, although it is usefull
 # if at least one of chattag and headtag is set ;-)
 #
-#
+# You may use Hex Colors in Chattag and Description!
 #
 prefixes:
   Noob:
-    chattag: '&aNoob'
+    chattag: '<#2AA8F2>Noob'
+    ## Use Hex Colors like <#FBA949>
     headtag: '&aNoob'
     permission: 'title.noob.prefix'
     description: '&6&oA &d&ospecial &6&oTitle for &d&oSpecial &6&oPeople'
@@ -33,7 +34,8 @@ suffixes:
     chattag: '&aNoob'
     headtag: '&aNoob'
     permission: 'title.noob.suffix'
-    description: '&6&oA &d&ospecial &6&oTitle for &d&oSpecial &6&oPeople'
+    description: '<gradient:#FBA949:#FAE442:#8BD448:#2AA8F2>A &d&ospecial &6&oTitle for &d&oSpecial &6&oPeople'
+    ## Gradients work also <gradient:#FBA949:#FAE442:#8BD448:#2AA8F2>
     symbol: '&aN'
 default_prefix: 'Noob'
 default_suffix: 'Noob'

@@ -1,11 +1,11 @@
 name: dsTitle
 main: denniss17.dsTitle.DSTitle
-version: 2.0.2
+version: 2.0.3
 author: Denniss17
 website: 'https://github.com/DrkMatr1984/dsTitles'
 api-version: 1.14
 description: With this plugin you can create and set titles.
-softdepend: [Vault, PlaceholderAPI, DeluxeChat, MVdWPlaceholderAPI, LuckPerms]
+softdepend: [Vault, PlaceholderAPI, MVdWPlaceholderAPI, LuckPerms]
 commands:
    title:
       description: Manage your title

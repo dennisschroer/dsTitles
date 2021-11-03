@@ -114,21 +114,24 @@ public class DSTitle extends JavaPlugin{
         else
         	titleManager = new TitleManager(this);
         // Default to YML Storage
-        if((type.equalsIgnoreCase("database") || type.equalsIgnoreCase("sql")) && this.storage == null)
+        if(type.equalsIgnoreCase("database") || type.equalsIgnoreCase("sql"))
         {
-            try {
-                this.storage = new SQLTitleStorage(this,titleManager);
-            }
-            catch( SQLException ex){
-                getLogger().log(Level.SEVERE,"Could not create SQLStorage, falling back to file storage");
-                getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
-                // Fall Back to YML
-                this.storage = new YMLTitleStorage(this,titleManager);
-            }
+        	if(this.storage == null) {
+        		try {
+                    this.storage = new SQLTitleStorage(this,titleManager);
+                }
+                catch( SQLException ex){
+                    getLogger().log(Level.SEVERE,"Could not create SQLStorage, falling back to file storage");
+                    getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
+                    // Fall Back to YML
+                    this.storage = new YMLTitleStorage(this,titleManager);
+                }
+        	}          
         }
         else
         {
-            this.storage = new YMLTitleStorage(this,titleManager);
+        	if(this.storage == null)
+        		this.storage = new YMLTitleStorage(this,titleManager);
         }
         
         // Reset buffers

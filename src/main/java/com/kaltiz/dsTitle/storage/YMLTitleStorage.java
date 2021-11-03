@@ -22,16 +22,12 @@ public class YMLTitleStorage extends TitleStorage {
     {
         super(plugin,manager);
 
-        String file = plugin.getConfig().contains("storage.file") ? plugin.getConfig().getString("storage.file") : "players.yml";
+        String file = "players.yml";
 
         this.playersFile = new File(plugin.getDataFolder(), file);
+        plugin.saveResource(file, false);
         this.playersConfig = YamlConfiguration.loadConfiguration(playersFile);
 
-        try {
-            playersConfig.save(playersFile);
-        } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE,"Could not save config to " + playersFile, ex);
-        }
     }
 
     @Override

@@ -11,6 +11,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.haroldstudios.hexitextlib.HexResolver;
+
 import denniss17.dsTitle.DSTitle;
 import denniss17.dsTitle.objects.Prefix;
 import denniss17.dsTitle.objects.Suffix;
@@ -141,7 +143,9 @@ public class TitleConfig
         	// These values could be null !
             String permission   = titleSection.getString("permission");
             String description  = titleSection.getString("description");
+            description = HexResolver.parseHexString(description);
             String chatTag      = titleSection.getString("chattag");
+            chatTag = HexResolver.parseHexString(chatTag);
             String headTag      = titleSection.getString("headtag");
             String symbol       = titleSection.getString("symbol");
             if (headTag!=null && headTag.length() > 16)
@@ -178,7 +182,9 @@ public class TitleConfig
         	// These values could be null !
             String permission   = titleSection.getString("permission");
             String description  = titleSection.getString("description");
+            description = HexResolver.parseHexString(description);
             String chatTag      = titleSection.getString("chattag");
+            chatTag = HexResolver.parseHexString(chatTag);
             String headTag      = titleSection.getString("headtag");
             String symbol       = titleSection.getString("symbol");
             if (headTag!=null && headTag.length() > 16)

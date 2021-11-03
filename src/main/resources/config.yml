@@ -41,8 +41,6 @@ storage:
   # Storage type to store titles of player
   # Possible values: 'file' and 'database'
   type: file
-  # The name of the file to use when storing titles in a file
-  file: players.yml
   # Database settings
   database:
     # Database driver. Possible values: H2, MYSQL, POSTGRE, SQLITE
