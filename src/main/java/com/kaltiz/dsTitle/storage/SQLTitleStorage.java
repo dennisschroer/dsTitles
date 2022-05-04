@@ -20,6 +20,7 @@ public class SQLTitleStorage extends TitleStorage {
 
 	protected DataSource dataSource;
     protected DatabaseType driver;
+    private HikariConfig config;
     protected String url = "";
     protected String username = "";
     protected String password = "";
@@ -71,7 +72,7 @@ public class SQLTitleStorage extends TitleStorage {
             		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
             	else
             		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
-            	HikariConfig config = new HikariConfig();
+            	config = new HikariConfig();
             	config.setJdbcUrl(this.url);
                 config.setUsername(this.username);
                 config.setPassword(this.password);
@@ -109,7 +110,14 @@ public class SQLTitleStorage extends TitleStorage {
     }
     
     public void closeConnection() throws SQLException{
-    	 if (conn != null && !conn.isClosed()) conn.close();
+    	if(dataSource instanceof HikariDataSource) {
+    		if(!((HikariDataSource) dataSource).isClosed()) {
+    			((HikariDataSource) dataSource).close();
+    		}
+    	}else {
+    		if (conn != null && !conn.isClosed()) conn.close();
+    	}
+    	 
     }
     
     private boolean loadDriver()
@@ -126,19 +134,13 @@ public class SQLTitleStorage extends TitleStorage {
     }
 
     private Connection getConnection() throws SQLException{
-        /*if (conn != null) {
-            // Make a dummy query to check the connection is alive.
-            try {
-                if (conn.isClosed()) {
-                    conn = null;
-                } else {
-                    conn.prepareStatement("SELECT 1;").execute();
-                }
-            } catch (SQLException ex) {
-            }
-        }*/
+
         if (conn == null || conn.isClosed()) {
-            conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
+        	if(dataSource instanceof HikariDataSource) {
+                this.conn = dataSource.getConnection();
+        	}else {
+        		conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
+        	}           
         }
         // The connection could be null here (!)
         return conn;
@@ -151,7 +153,7 @@ public class SQLTitleStorage extends TitleStorage {
         String suffix = plugin.getTitleManager().titlesConfig.getDefaultSuffix();
         String qry = "SELECT * FROM `players` WHERE `uuid` = ?;";
         try {
-            PreparedStatement stmt = this.conn.prepareStatement(qry);
+            PreparedStatement stmt = getConnection().prepareStatement(qry);
             stmt.setString(1, target.getUniqueId().toString());
             ResultSet result = stmt.executeQuery();
 
@@ -189,7 +191,7 @@ public class SQLTitleStorage extends TitleStorage {
         try{
             String existing;
             String qry = "SELECT `uuid` FROM `players` WHERE `uuid` = ?;";
-            PreparedStatement stmt = this.conn.prepareStatement(qry);
+            PreparedStatement stmt = getConnection().prepareStatement(qry);
             stmt.setString(1, id.toString());
             
             ResultSet result = stmt.executeQuery();
@@ -197,12 +199,12 @@ public class SQLTitleStorage extends TitleStorage {
             stmt.close();
             
             if(existing != null){
-            	stmt = this.conn.prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `uuid` = ?;");
+            	stmt = getConnection().prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `uuid` = ?;");
             	stmt.setString(1, prefix);
             	stmt.setString(2, suffix);
             	stmt.setString(3, id.toString());
             }else{
-            	stmt = this.conn.prepareStatement("INSERT INTO `players` VALUES (?, ?, ?);");
+            	stmt = getConnection().prepareStatement("INSERT INTO `players` VALUES (?, ?, ?);");
             	stmt.setString(1, id.toString());
             	stmt.setString(2, prefix);
             	stmt.setString(3, suffix);
