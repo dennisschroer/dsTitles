@@ -1,6 +1,8 @@
 package com.kaltiz.dsTitle.storage;
 
 import com.kaltiz.dsTitle.TitleManager;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import denniss17.dsTitle.DSTitle;
 import denniss17.dsTitle.objects.Title;
@@ -12,8 +14,11 @@ import java.sql.*;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import javax.sql.DataSource;
+
 public class SQLTitleStorage extends TitleStorage {
 
+	protected DataSource dataSource;
     protected DatabaseType driver;
     protected String url = "";
     protected String username = "";
@@ -31,44 +36,49 @@ public class SQLTitleStorage extends TitleStorage {
         	if(this.driver.equals(DatabaseType.SQLITE)){
             	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
             }else{
+            	this.username = plugin.getConfig().getString("storage.database.username");
+                this.password = plugin.getConfig().getString("storage.database.password");
+            	HikariConfig config = new HikariConfig();
             	if(plugin.getConfig().getString("storage.database.autoReconnect").equalsIgnoreCase("true"))
             		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
             	else
             		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
+                config.setJdbcUrl(this.url);
+                config.setUsername(this.username);
+                config.setPassword(this.password);
+                config.setMaximumPoolSize(10);
+                config.setAutoCommit(false);
+                config.setMaxLifetime(28740000);
+                config.setDriverClassName(this.driver.driver);
+                config.addDataSourceProperty("cachePrepStmts", "true");
+                config.addDataSourceProperty("prepStmtCacheSize", "250");
+                config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+                dataSource = new HikariDataSource(config);           	
             }
-            this.username = plugin.getConfig().getString("storage.database.username");
-            this.password = plugin.getConfig().getString("storage.database.password");
-
-            if (!loadDriver()) {
-                throw new SQLException("Couldn't load driver");
-            }
-
-            this.conn = getConnection();
-            
-            if (conn==null) {
-                throw new SQLException("Couldn't connect to the database");
-            }
-
-            // Create table
-            String qry = "CREATE TABLE IF NOT EXISTS `players` (`uuid` VARCHAR(64) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
-            Statement stmt = this.conn.createStatement();
-            stmt.execute(qry);
+        	try
+        	{
+        		this.conn = dataSource.getConnection();
+                if (conn==null) {
+                    throw new SQLException("Couldn't connect to the database");
+                }
+                String qry = "CREATE TABLE IF NOT EXISTS `players` (`uuid` VARCHAR(64) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
+                Statement stmt = this.conn.createStatement();
+                stmt.execute(qry);
+        	}catch (Exception e) {
+        		try
+                {
+                        conn.rollback();
+                }
+                catch (SQLException e1)
+                {
+                        e1.printStackTrace();
+                }
+                e.printStackTrace();
+        	}
+        	
         }else {
         	plugin.getLogger().info("Database needs a type set. Possible values: H2, MYSQL, POSTGRE, SQLITE");
         }      
-    }
-
-    private boolean loadDriver()
-    {
-        try {
-            this.getClass().getClassLoader().loadClass(this.driver.driver).newInstance();
-            return true;
-        } catch (IllegalAccessException e) {
-            // Constructor is private, OK for DriverManager contract
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     private Connection getConnection() throws SQLException{
@@ -145,7 +155,7 @@ public class SQLTitleStorage extends TitleStorage {
             ResultSet result = stmt.executeQuery();
             existing = result.next() ? result.getString("uuid") : null;
             stmt.close();
-
+            
             if(existing != null){
             	stmt = this.getConnection().prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `uuid` = ?;");
             	stmt.setString(1, prefix);
@@ -160,8 +170,9 @@ public class SQLTitleStorage extends TitleStorage {
             stmt.executeUpdate();
             stmt.close();
         } catch (SQLException ex) {
-        	plugin.getLogger().log(Level.SEVERE,"Could not save titles of player " + id.toString());
-            plugin.getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
+        	System.out.println("[dsTitles] ERROR");
+        	System.out.println("[dsTitles] Could not save titles of player " + id.toString());
+        	System.out.println("Reason: " + ex.getMessage());
         }
     }
 }

@@ -11,6 +11,7 @@ New Features to this Fork :
 * Fixed a few bugs, including the invisible players still having their nametags shown when dsTitle is handling nametags
 * Added a prefix and suffix "symbol". Basically a one letter abbreviation of the prefix/suffix that can be used to shorten tags or use WolfieMario's Icon pack to set title icons.
 * Ability to use Hex Colors in chatTag and description of titles. Use them like <#2AA8F2> and <gradient:#2AA8F2:#8BD448>
+* Use HikariCP connection pooling and settings to prevent MySQL timeouts
 
 For more info go to https://www.spigotmc.org/resources/dstitles.96043/
 
@@ -24,3 +25,4 @@ From the Command Line. The result will be located in the target directory.
 
 
 * Special thanks to HexiTextLib for his hex lib
+* Special Thanks to the HikariCP guys! <3

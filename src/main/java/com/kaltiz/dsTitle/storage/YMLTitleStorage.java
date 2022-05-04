@@ -11,7 +11,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 
 public class YMLTitleStorage extends TitleStorage {
 
@@ -65,7 +64,9 @@ public class YMLTitleStorage extends TitleStorage {
         try {
             playersConfig.save(playersFile);
         } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE,"Could not save config to " + playersFile, ex);
+        	System.out.println("[dsTitles] ERROR");
+            System.out.println("[dsTitles] Could not save config to " + playersFile);
+        	System.out.println("Reason: " + ex.getMessage());
         }
     }
 }
