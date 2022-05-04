@@ -35,15 +35,44 @@ public class SQLTitleStorage extends TitleStorage {
         if(this.driver!=null) {
         	if(this.driver.equals(DatabaseType.SQLITE)){
             	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
+            	this.username = plugin.getConfig().getString("storage.database.username");
+                this.password = plugin.getConfig().getString("storage.database.password");
+                try
+            	{
+                    if (!loadDriver()) {
+                        throw new SQLException("Couldn't load driver");
+                    }
+                    this.conn = getConnection();           
+                
+                	if (conn==null) {
+                        throw new SQLException("Couldn't connect to the database");
+                    }
+
+                    // Create table
+                    String qry = "CREATE TABLE IF NOT EXISTS `players` (`uuid` VARCHAR(64) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
+                    Statement stmt = this.conn.createStatement();
+                    stmt.execute(qry);
+            	}catch (Exception e) {
+            		try
+                    {
+                            conn.rollback();
+                    }
+                    catch (SQLException e1)
+                    {
+                            e1.printStackTrace();
+                    }
+                    e.printStackTrace();
+            	}
             }else{
             	this.username = plugin.getConfig().getString("storage.database.username");
                 this.password = plugin.getConfig().getString("storage.database.password");
-            	HikariConfig config = new HikariConfig();
+            	
             	if(plugin.getConfig().getString("storage.database.autoReconnect").equalsIgnoreCase("true"))
             		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
             	else
             		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
-                config.setJdbcUrl(this.url);
+            	HikariConfig config = new HikariConfig();
+            	config.setJdbcUrl(this.url);
                 config.setUsername(this.username);
                 config.setPassword(this.password);
                 config.setMaximumPoolSize(10);
@@ -52,29 +81,28 @@ public class SQLTitleStorage extends TitleStorage {
                 config.addDataSourceProperty("cachePrepStmts", "true");
                 config.addDataSourceProperty("prepStmtCacheSize", "250");
                 config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-                dataSource = new HikariDataSource(config);           	
-            }
-        	try
-        	{
-        		this.conn = dataSource.getConnection();
-                if (conn==null) {
-                    throw new SQLException("Couldn't connect to the database");
-                }
-                String qry = "CREATE TABLE IF NOT EXISTS `players` (`uuid` VARCHAR(64) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
-                Statement stmt = this.conn.createStatement();
-                stmt.execute(qry);
-        	}catch (Exception e) {
-        		try
-                {
-                        conn.rollback();
-                }
-                catch (SQLException e1)
-                {
-                        e1.printStackTrace();
-                }
-                e.printStackTrace();
-        	}
-        	
+                dataSource = new HikariDataSource(config);
+                try
+            	{
+            		this.conn = dataSource.getConnection();
+                    if (conn==null) {
+                        throw new SQLException("Couldn't connect to the database");
+                    }
+                    String qry = "CREATE TABLE IF NOT EXISTS `players` (`uuid` VARCHAR(64) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
+                    Statement stmt = this.conn.createStatement();
+                    stmt.execute(qry);
+            	}catch (Exception e) {
+            		try
+                    {
+                            conn.rollback();
+                    }
+                    catch (SQLException e1)
+                    {
+                            e1.printStackTrace();
+                    }
+                    e.printStackTrace();
+            	}
+            }  	
         }else {
         	plugin.getLogger().info("Database needs a type set. Possible values: H2, MYSQL, POSTGRE, SQLITE");
         }      
@@ -82,6 +110,38 @@ public class SQLTitleStorage extends TitleStorage {
     
     public void closeConnection() throws SQLException{
     	 if (conn != null && !conn.isClosed()) conn.close();
+    }
+    
+    private boolean loadDriver()
+    {
+        try {
+            this.getClass().getClassLoader().loadClass(this.driver.driver).newInstance();
+            return true;
+        } catch (IllegalAccessException e) {
+            // Constructor is private, OK for DriverManager contract
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Connection getConnection() throws SQLException{
+        /*if (conn != null) {
+            // Make a dummy query to check the connection is alive.
+            try {
+                if (conn.isClosed()) {
+                    conn = null;
+                } else {
+                    conn.prepareStatement("SELECT 1;").execute();
+                }
+            } catch (SQLException ex) {
+            }
+        }*/
+        if (conn == null || conn.isClosed()) {
+            conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
+        }
+        // The connection could be null here (!)
+        return conn;
     }
 
     @Override
