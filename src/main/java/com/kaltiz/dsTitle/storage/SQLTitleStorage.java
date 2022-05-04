@@ -47,7 +47,6 @@ public class SQLTitleStorage extends TitleStorage {
                 config.setUsername(this.username);
                 config.setPassword(this.password);
                 config.setMaximumPoolSize(10);
-                config.setAutoCommit(false);
                 config.setMaxLifetime(28740000);
                 config.setDriverClassName(this.driver.driver);
                 config.addDataSourceProperty("cachePrepStmts", "true");
@@ -80,26 +79,6 @@ public class SQLTitleStorage extends TitleStorage {
         	plugin.getLogger().info("Database needs a type set. Possible values: H2, MYSQL, POSTGRE, SQLITE");
         }      
     }
-
-    private Connection getConnection() throws SQLException{
-        /*if (conn != null) {
-            // Make a dummy query to check the connection is alive.
-            try {
-                if (conn.isClosed()) {
-                    conn = null;
-                } else {
-                    conn.prepareStatement("SELECT 1;").execute();
-                }
-            } catch (SQLException ex) {
-
-            }
-        }*/
-        if (conn == null || conn.isClosed()) {
-            conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
-        }
-        // The connection could be null here (!)
-        return conn;
-    }
     
     public void closeConnection() throws SQLException{
     	 if (conn != null && !conn.isClosed()) conn.close();
@@ -112,7 +91,7 @@ public class SQLTitleStorage extends TitleStorage {
         String suffix = plugin.getTitleManager().titlesConfig.getDefaultSuffix();
         String qry = "SELECT * FROM `players` WHERE `uuid` = ?;";
         try {
-            PreparedStatement stmt = this.getConnection().prepareStatement(qry);
+            PreparedStatement stmt = this.conn.prepareStatement(qry);
             stmt.setString(1, target.getUniqueId().toString());
             ResultSet result = stmt.executeQuery();
 
@@ -121,6 +100,7 @@ public class SQLTitleStorage extends TitleStorage {
                 prefix = result.getString("prefix");
                 suffix = result.getString("suffix");
             }
+            stmt.close();
         }
         catch (SQLException ex)
         {
@@ -157,12 +137,12 @@ public class SQLTitleStorage extends TitleStorage {
             stmt.close();
             
             if(existing != null){
-            	stmt = this.getConnection().prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `uuid` = ?;");
+            	stmt = this.conn.prepareStatement("UPDATE `players` SET `prefix` = ?, `suffix` = ? WHERE `uuid` = ?;");
             	stmt.setString(1, prefix);
             	stmt.setString(2, suffix);
             	stmt.setString(3, id.toString());
             }else{
-            	stmt = this.getConnection().prepareStatement("INSERT INTO `players` VALUES (?, ?, ?);");
+            	stmt = this.conn.prepareStatement("INSERT INTO `players` VALUES (?, ?, ?);");
             	stmt.setString(1, id.toString());
             	stmt.setString(2, prefix);
             	stmt.setString(3, suffix);
