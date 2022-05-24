@@ -2,6 +2,9 @@ package com.kaltiz.dsTitle.storage;
 
 import com.kaltiz.dsTitle.TitleManager;
 import denniss17.dsTitle.DSTitle;
+
+import javax.annotation.Nonnull;
+
 import org.bukkit.OfflinePlayer;
 
 /**
@@ -19,7 +22,7 @@ public abstract class TitleStorage {
         this.manager = manager;
     }
 
-    public abstract void loadTitlesPlayer(OfflinePlayer target);
+    public abstract void loadTitlesPlayer(@Nonnull OfflinePlayer target);
 
-    public abstract void saveTitlesPlayer(OfflinePlayer target);
+    public abstract void saveTitlesPlayer(@Nonnull OfflinePlayer target);
 }

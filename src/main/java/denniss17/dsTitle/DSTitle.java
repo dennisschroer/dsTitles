@@ -3,6 +3,7 @@ package denniss17.dsTitle;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,6 +13,9 @@ import com.kaltiz.dsTitle.storage.SQLTitleStorage;
 import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
+import denniss17.dsTitle.Placeholders.PlaceholderAPIHook;
+import denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook;
+import denniss17.dsTitle.permissions.PermissionManager;
 
 public class DSTitle extends JavaPlugin{	
 	private PermissionManager permissionManager;
@@ -21,11 +25,29 @@ public class DSTitle extends JavaPlugin{
 	
 	private static final int projectID = 51865;
 	public static VersionChecker versionChecker;
+	public boolean placeHolders = false;
+	private DSTitle instance;
 
 	/**
 	 * Enable this plugin
 	 */
 	public void onEnable(){
+		instance = this;
+		super.onEnable();
+		if(Bukkit.getPluginManager().isPluginEnabled("MVdWPlaceholderAPI"))
+		{
+			if(new mvdwPlaceholderAPIHook(this).registerPlaceholders()){
+				getLogger().info("dsTitle was successfully registered with mvdwPlaceholderAPI!");
+				placeHolders = true;
+			}
+		}
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+		{
+			if(new PlaceholderAPIHook(this).register()) {
+				getLogger().info("dsTitle was successfully registered with PlaceholderAPI!");
+				placeHolders = true;
+			}
+		}
 		// Register listeners
 		Listener playerListener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
@@ -50,7 +72,6 @@ public class DSTitle extends JavaPlugin{
 		if(this.getConfig().getBoolean("general.check_for_updates")){
 			activateVersionChecker();
         }
-
         this.getLogger().info("Loaded!");
 	}
 	
@@ -64,6 +85,9 @@ public class DSTitle extends JavaPlugin{
 				
 			}
 		}
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+			
+		}
 	}
 	
 	/**
@@ -71,7 +95,8 @@ public class DSTitle extends JavaPlugin{
 	 */
 	private void activateVersionChecker(){
 		versionChecker = new VersionChecker(this, projectID);
-		versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+        if(versionChecker!=null)
+        	versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
 	}
 	
 	/**
@@ -87,24 +112,29 @@ public class DSTitle extends JavaPlugin{
         String type = getConfig().getString("storage.type");
 
         // Reload the TitleManager
-        this.titleManager = new TitleManager(this);
-
+        if(titleManager !=null)
+        	titleManager.reloadTitleConfigs();
+        else
+        	titleManager = new TitleManager(this);
         // Default to YML Storage
-        if((type.equalsIgnoreCase("database")))
+        if(type.equalsIgnoreCase("database") || type.equalsIgnoreCase("sql"))
         {
-            try {
-                this.storage = new SQLTitleStorage(this,titleManager);
-            }
-            catch( SQLException ex){
-                getLogger().log(Level.SEVERE,"Could not create SQLStorage, falling back to file storage");
-                getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
-                // Fall Back to YML
-                this.storage = new YMLTitleStorage(this,titleManager);
-            }
+        	if(this.storage == null) {
+        		try {
+                    this.storage = new SQLTitleStorage(this,titleManager);
+                }
+                catch( SQLException ex){
+                    getLogger().log(Level.SEVERE,"Could not create SQLStorage, falling back to file storage");
+                    getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
+                    // Fall Back to YML
+                    this.storage = new YMLTitleStorage(this,titleManager);
+                }
+        	}          
         }
         else
         {
-            this.storage = new YMLTitleStorage(this,titleManager);
+        	if(this.storage == null)
+        		this.storage = new YMLTitleStorage(this,titleManager);
         }
         
         // Reset buffers
@@ -144,4 +174,10 @@ public class DSTitle extends JavaPlugin{
 	public void sendMessage(CommandSender receiver, String message){
 		receiver.sendMessage(ChatStyler.setTotalStyle(message));
 	}
+
+	public DSTitle getInstance() {
+		return instance;
+	}
+	
+	
 }

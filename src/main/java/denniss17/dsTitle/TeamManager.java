@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import denniss17.dsTitle.Title;
+import denniss17.dsTitle.objects.Title;
 
+@SuppressWarnings("deprecation")
 public class TeamManager {	
 	private DSTitle plugin;
 	
@@ -28,12 +30,12 @@ public class TeamManager {
 	 * @return the Team
 	 * @ensure result.getPrefix().equals(title.headprefix) && result.getSuffix().equals(title.headsuffix)
 	 */
-	public Team getTeam(Title prefix, Title suffix){
+	public Team getTeam(Title prefix, Title suffix, Player player){
 		Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
 		
 		String prefixName = prefix==null ? "" : prefix.name;
 		String suffixName = suffix==null ? "" : suffix.name;
-		Team team = teams.get(prefixName + "-" + suffixName);
+		Team team = teams.get(prefixName + "-" + suffixName + "-" + player.getUniqueId().toString());
 		
 		if(team==null){
 			int i = 0;
@@ -54,8 +56,14 @@ public class TeamManager {
 			// Set options to same as if not in team
 			team.setAllowFriendlyFire(true);
 			team.setCanSeeFriendlyInvisibles(false);
+			for(Player p : plugin.getServer().getOnlinePlayers()){
+				if(!p.canSee(player)){
+					team.setNameTagVisibility(NameTagVisibility.NEVER);
+				}
+			}
+			//Deprecated, will likely replace when future versions of Spigot are sure to continue
 			
-			teams.put(prefixName + "-" + suffixName, team);
+			teams.put(prefixName + "-" + suffixName + "-" + player.getUniqueId().toString(), team);
 		}
 		
 		return team;
@@ -76,7 +84,7 @@ public class TeamManager {
 		if(prefix==null && suffix==null) return;
 		String prefixName = prefix==null ? "" : prefix.name;
 		String suffixName = suffix==null ? "" : suffix.name;
-		Team team = teams.get(prefixName + "-" + suffixName);
+		Team team = teams.get(prefixName + "-" + suffixName + "-" + player.getUniqueId().toString());
 		if(team!=null){
 			team.removePlayer(player);
 			// Cleanup
@@ -114,7 +122,7 @@ public class TeamManager {
 				Title prefix = plugin.getTitleManager().getPlayerPrefix(player);
 				Title suffix = plugin.getTitleManager().getPlayerSuffix(player);
 				if(prefix!=null || suffix!=null){
-					plugin.getTeamManager().getTeam(prefix, suffix).addPlayer(player);
+					plugin.getTeamManager().getTeam(prefix, suffix, player).addPlayer(player);
 				}
 			}
 		}

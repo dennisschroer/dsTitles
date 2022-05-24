@@ -3,7 +3,7 @@ package com.kaltiz.dsTitle.storage;
 public enum DatabaseType
 {
     H2("org.h2.Driver"),  
-    MYSQL("com.mysql.jdbc.Driver"),  
+    MYSQL("com.mysql.cj.jdbc.Driver"),  
     POSTGRE("org.postgresql.Driver"),  
     SQLITE("org.sqlite.JDBC");
     

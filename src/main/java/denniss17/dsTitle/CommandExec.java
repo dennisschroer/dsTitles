@@ -4,14 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import denniss17.dsTitle.Title;
-import denniss17.dsTitle.Title.Type;
+import denniss17.dsTitle.objects.Prefix;
+import denniss17.dsTitle.objects.Suffix;
+import denniss17.dsTitle.objects.Title;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class CommandExec implements CommandExecutor{
 
@@ -92,35 +98,34 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		String name = args[2];
-		Type type;
-		if(args[1].equals("prefix")){
-			type = Type.PREFIX;
-		}else if(args[1].equals("suffix")){
-			type = Type.SUFFIX;
-		}else{
-			return false;
-		}
-		
-		
+				
 		// Check existence
-		if(type.equals(Type.PREFIX) && plugin.getTitleManager().prefixExists(name)){
+		if(args[1].equals("prefix") && plugin.getTitleManager().prefixExists(name)){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_exists"));
 			return true;
 		}
-		if(type.equals(Type.SUFFIX) && plugin.getTitleManager().suffixExists(name)){
+		if(args[1].equals("suffix") && plugin.getTitleManager().suffixExists(name)){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_exists"));
 			return true;
 		}
 		
-		// Create new title			
-		Title title = new Title(name, type, null, null, null, null);
-		
+		// Create new title
+		Title title = null;
+		if(args[1].equals("prefix")) {
+			title = new Prefix(name, null, null, null, null, null);
+		}else if(args[1].equals("suffix")) {
+			title = new Suffix(name, null, null, null, null, null);
+		}
 		// Save new title
-        plugin.getTitleManager().saveTitle(title);
-		
-		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_added"));
-		
-		return true;
+		if(!title.equals(null)) {
+			plugin.getTitleManager().titlesConfig.saveTitle(title);
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_added"));
+			return true;
+		}else {
+			plugin.sendMessage(sender, plugin.getConfig().getString("error_has_occured"));
+			return true;
+		}
+        
 	}
 
 	private boolean cmdTitleEdit(CommandSender sender, Command cmd,  String commandlabel, String[] args) {
@@ -140,18 +145,10 @@ public class CommandExec implements CommandExecutor{
 			value+= args[i] + " ";
 		}
 		value = value.trim();
-		Type type;
-		if(args[1].equals("prefix")){
-			type = Type.PREFIX;
-		}else if(args[1].equals("suffix")){
-			type = Type.SUFFIX;
-		}else{
-			return false;
-		}
 		
 		// Get title
 		Title title = null;
-		if(type.equals(Type.PREFIX)){
+		if(args[1].equals("prefix")){
 			if (plugin.getTitleManager().prefixExists(name)){
 				title=plugin.getTitleManager().getPrefix(name);
 			}else{
@@ -159,7 +156,7 @@ public class CommandExec implements CommandExecutor{
 				return true;
 			}
 		}
-		if(type.equals(Type.SUFFIX)){
+		if(args[1].equals("suffix")){
 			if(plugin.getTitleManager().suffixExists(name)){
 				title=plugin.getTitleManager().getSuffix(name);
 			}else{
@@ -180,13 +177,19 @@ public class CommandExec implements CommandExecutor{
 			title.permission = value;
 		}else if(field.equals("description")){
 			title.description = value;
+		}else if(field.equals("symbol")) {
+			if(value.length()>1) {
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_symbol_too_long"));
+			    return true;
+			}
+			title.symbol = value;
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_valid_field"));
 			return false;
 		}
 		
 		// Save title title
-        plugin.getTitleManager().saveTitle(title);
+        plugin.getTitleManager().titlesConfig.saveTitle(title);
 		
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.title_edited"));
 		
@@ -200,7 +203,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		SortedSet<Title> titles = plugin.getTitleManager().getPrefixes();
-		sendTitleList(sender, titles);
+		sendTitleList(sender, titles, true);
 		return true;
 	}
 	
@@ -211,54 +214,65 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		SortedSet<Title> titles = plugin.getTitleManager().getSuffixes();
-		sendTitleList(sender, titles);
+		sendTitleList(sender, titles, false);
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleSetPrefix(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(args.length<3) return false;
 		
 		// Check if player
-		Player player;
+		Player player = null;
 		if(sender instanceof Player){
 			player = (Player)sender;
-		}else{
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_player"));
-			return true;
 		}
 		
-		// Get target
-		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
+		OfflinePlayer target = null;
+		if(args.length>3) {
+			target = plugin.getServer().getOfflinePlayer(args[3]);
+			if(!target.isOnline()) {
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.target_is_not_online"));
+				return true;
+			}
+		}else {
+			target = player;
+		}
 		
 		// Check permission
-		if(target.getName().equals(player.getName())){
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.self")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-				return true;
+		if(player!=null)
+			if(target.getName().equals(player.getName())){
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.self")){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
+			}else{
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.other") && sender instanceof Player){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
 			}
-		}else{
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.prefix.other")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-				return true;
-			}
-		}
 		
 		// Check prefix
 		if(plugin.getTitleManager().prefixExists(args[2])){
 			Title title = plugin.getTitleManager().getPrefix(args[2]);
-			if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
-				// Clean up previous title
-				if(plugin.getConfig().getBoolean("general.use_nametag")){
-					plugin.getTeamManager().removePlayerFromTeam(player);
+			if(player!=null) {
+				if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
+					// Clean up previous title
+					if(plugin.getConfig().getBoolean("general.use_nametag")){
+						plugin.getTeamManager().removePlayerFromTeam(player);
+					}
+					
+					// Set new title
+	                plugin.getTitleManager().setPlayerPrefix((Prefix) title, target);
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_set"));
+				}else{
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
 				}
-				
-				// Set new title
-                plugin.getTitleManager().setPlayerPrefix(title, target);
+			}else {
+				plugin.getTitleManager().setPlayerPrefix((Prefix) title, target);
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_set"));
-			}else{
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-			}
-			
+			}		
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_not_found"));
 		}
@@ -266,50 +280,62 @@ public class CommandExec implements CommandExecutor{
 		return true;	
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleSetSuffix(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(args.length<3) return false;
 		
 		// Check if player
-		Player player;
+		Player player = null;
 		if(sender instanceof Player){
 			player = (Player)sender;
-		}else{
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_player"));
-			return true;
 		}
 		
-		// Get target
-		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
-		
-		// Check permission
-		if(target.getName().equals(player.getName())){
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.self")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+		OfflinePlayer target = null;
+		if(args.length>3) {
+			target = plugin.getServer().getOfflinePlayer(args[3]);
+			if(!target.isOnline()) {
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.target_is_not_online"));
 				return true;
 			}
-		}else{
-			if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.other")){
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
-				return true;
+		}else {
+			target = player;
+		}
+		
+		// Check permission
+		if(player!=null) {
+			if(target.getName().equals(player.getName())){
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.self")){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
+			}else {
+				if(!plugin.getPermissionManager().hasPermission(player, "ds_title.suffix.other")){
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+					return true;
+				}
 			}
 		}
 		
 		// Check suffix
 		if(plugin.getTitleManager().suffixExists(args[2])){
 			Title title = plugin.getTitleManager().getSuffix(args[2]);
-			if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
-				// Clean up previous title
-				if(plugin.getConfig().getBoolean("general.use_nametag")){
-					plugin.getTeamManager().removePlayerFromTeam(player);
+			if(player!=null) {
+				if(title.permission==null || plugin.getPermissionManager().hasPermission(player, title.permission)){
+					// Clean up previous title
+					if(plugin.getConfig().getBoolean("general.use_nametag")){
+						plugin.getTeamManager().removePlayerFromTeam(player);
+					}
+					
+					// Set new title
+	                plugin.getTitleManager().setPlayerSuffix((Suffix) title, target);
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
+				}else{
+					plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
 				}
-				
-				// Set new title
-                plugin.getTitleManager().setPlayerSuffix(title, target);
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
-			}else{
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+			}else {
+				 plugin.getTitleManager().setPlayerSuffix((Suffix) title, target);
+				 plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_set"));
 			}
-			
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_not_found"));
 		}
@@ -317,6 +343,7 @@ public class CommandExec implements CommandExecutor{
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleClear(CommandSender sender, Command cmd, String commandlabel, String[] args){		
 		// Check if player
 		Player player;
@@ -366,21 +393,30 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleGrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.grant")){
-			if(plugin.getPermissionManager().isVaultEnabled()){
+			if(plugin.getPermissionManager().isVaultEnabled() || plugin.getPermissionManager().isLuckPermsEnabled()){
 				if(args.length<4) return false;
-				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
-				Title title = type.equals(Type.SUFFIX) ? plugin.getTitleManager().getSuffix(args[3]) : plugin.getTitleManager().getPrefix(args[3]);
+				Title title = null;
+                if(args[1].equalsIgnoreCase("prefix")) {
+					title = plugin.getTitleManager().getPrefix(args[3]);
+				}
+				if(args[1].equalsIgnoreCase("suffix")) {
+					title = plugin.getTitleManager().getSuffix(args[3]);
+				}
 				if(title!=null){
-					plugin.getPermissionManager().getVaultPermissionInstance().playerAdd((String)null, args[2], title.permission);
-					if(type.equals(Type.PREFIX)){
+					if(Bukkit.getOfflinePlayer(args[2]).isOnline()) 
+						plugin.getPermissionManager().addPermission(Bukkit.getPlayer(args[2]), title.permission);
+					else
+						plugin.getPermissionManager().vHook.getVaultPermissionInstance().playerAdd((String)null, args[2], title.permission);
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_granted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_granted").replace("{title}", title.name).replace("{name}", args[2]));
 					}
 				}else{
-					if(type.equals(Type.PREFIX)){
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_not_found"));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_not_found"));
@@ -389,7 +425,8 @@ public class CommandExec implements CommandExecutor{
 				
 			}else{
 				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_vault"));
-			}			
+			}
+			//else console sender
 			return true;
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
@@ -397,21 +434,30 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleUngrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.ungrant")){
-			if(plugin.getPermissionManager().isVaultEnabled()){
+			if(plugin.getPermissionManager().isVaultEnabled() || plugin.getPermissionManager().isLuckPermsEnabled()){
 				if(args.length<4) return false;
-				Type type = args[1].equalsIgnoreCase("suffix") ? Type.SUFFIX : Type.PREFIX;
-				Title title = type.equals(Type.SUFFIX) ? plugin.getTitleManager().getSuffix(args[3]) : plugin.getTitleManager().getPrefix(args[3]);
+				Title title = null;
+                if(args[1].equalsIgnoreCase("prefix")) {
+					title = plugin.getTitleManager().getPrefix(args[3]);
+				}
+				if(args[1].equalsIgnoreCase("suffix")) {
+					title = plugin.getTitleManager().getSuffix(args[3]);
+				}
 				if(title!=null){
-					plugin.getPermissionManager().getVaultPermissionInstance().playerRemove((String)null, args[2], title.permission);
-					if(type.equals(Type.PREFIX)){
+					if(Bukkit.getOfflinePlayer(args[2]).isOnline())
+						plugin.getPermissionManager().removePermission(Bukkit.getPlayer(args[2]), title.permission);
+					else
+						plugin.getPermissionManager().vHook.getVaultPermissionInstance().playerRemove((String)null, args[2], title.permission);
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.prefix_ungranted").replace("{title}", title.name).replace("{name}", args[2]));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.suffix_ungranted").replace("{title}", title.name).replace("{name}", args[2]));
 					}
 				}else{
-					if(type.equals(Type.PREFIX)){
+					if(title instanceof Prefix){
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_prefix_not_found"));
 					}else{
 						plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_suffix_not_found"));
@@ -427,38 +473,71 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 
-	private void sendTitleList(CommandSender sender, SortedSet<Title> titles){
+	private void sendTitleList(CommandSender sender, SortedSet<Title> titles, boolean prefix){
 		List<String> available = new ArrayList<String>();
 		List<String> unavailable = new ArrayList<String>();
-		
+		List<String> availableTitles = new ArrayList<String>();
+		List<String> unavailableTitles = new ArrayList<String>();
+		String hoverTextMask = plugin.getConfig().getString("messages.title_available_hovertext");
 		String description, preview, listitem;
-		String listitemMask = plugin.getConfig().getString("messages.title_listitem");
+		
 		for(Title title: titles){
 			description = title.description==null ? "-" : title.description;
-			preview = title.chatTag==null ? "" : title.chatTag;
-			preview += title.chatTag!=null && title.headTag!=null ? "&r&8/&r" : "";
-			preview += title.headTag==null ? "" : title.headTag;
-			
-			listitem = listitemMask
-					.replace("{name}", title.name)
-					.replace("{preview}", preview + "&r")
-					.replace("{description}", description);
-					
-			if(title.permission==null || plugin.getPermissionManager().hasPermission(sender, title.permission)){
-				available.add(listitem);
+			if(title.chatTag!=null && title.chatTag!=""){
+				preview = title.chatTag;
 			}else{
+				preview = "";
+			}
+			if(title.headTag!=null && plugin.getConfig().getBoolean("general.use_nametag")){
+				if(title.chatTag!=null && title.chatTag!=""){
+					preview = preview + "&r&8/&r" +  title.headTag;
+				}else{
+					preview = preview + title.headTag;
+				}			  
+			}			
+			if(title.permission==null || plugin.getPermissionManager().hasPermission(sender, title.permission)){
+				String listitemMask = plugin.getConfig().getString("messages.title_listitem_available");
+				listitem = ChatColor.WHITE + ": " + ChatColor.RESET + listitemMask
+						.replace("{preview}", preview + "&r")
+						.replace("{description}", description);
+				available.add(listitem);
+				availableTitles.add(title.name);
+			}else{
+				String listitemMask = plugin.getConfig().getString("messages.title_listitem_unavailable");
+				listitem = ChatColor.WHITE + ": " + ChatColor.RESET + listitemMask
+						.replace("{preview}", preview + "&r")
+						.replace("{description}", description);
 				unavailable.add(listitem);
+				unavailableTitles.add(title.name);
 			}
 		}
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.available_header"));
-		for(String msg: available){
-			plugin.sendMessage(sender, msg);
-		}
+		if(available.size()!=0 && available!=null){
+			for(int i = 0; i < available.size(); i++){
+				if(sender instanceof Player){
+					TextComponent message = new TextComponent(TextComponent.fromLegacyText(ChatColor.BOLD + availableTitles.get(i) + ChatColor.RESET));
+					TextComponent extra = new TextComponent(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', available.get(i))));
+					String hoverText = hoverTextMask
+							.replace("{title}", availableTitles.get(i));
+					if(prefix)
+						message.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, ("/title prefix set " + availableTitles.get(i)) ) );						
+					else
+						message.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, ("/title suffix set " + availableTitles.get(i)) ) );
+					message.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',hoverText)) ) );				
+					message.addExtra(extra);
+					((Player) sender).spigot().sendMessage( message );
+				}		
+			}
+		}		
 		if(plugin.getConfig().getBoolean("general.show_unavailable_titles")){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.unavailable_header"));
-			for(String msg: unavailable){
-				plugin.sendMessage(sender, msg);
-			}
+			if(unavailable.size()!=0 && unavailable!=null){
+				for(int i = 0; i < unavailable.size(); i++){
+					plugin.sendMessage(sender, ChatColor.BOLD + unavailableTitles.get(i) + ChatColor.RESET + unavailable.get(i));
+				}
+			}		
 		}
+		
+		
 	}
 }

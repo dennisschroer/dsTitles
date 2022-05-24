@@ -1,22 +1,17 @@
 package com.kaltiz.dsTitle;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
-
+import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import denniss17.dsTitle.DSTitle;
-import denniss17.dsTitle.Title;
-import denniss17.dsTitle.Title.Type;
+import denniss17.dsTitle.objects.Prefix;
+import denniss17.dsTitle.objects.Suffix;
+import denniss17.dsTitle.objects.Title;
 
 /**
  * This class is responsible for managing titles of players.
@@ -24,108 +19,35 @@ import denniss17.dsTitle.Title.Type;
  * @author Kaltiz (and denniss17)
  */
 public class TitleManager {
-	private static final String TITLE_CONFIG_FILENAME = "titleConfig.yml";
-	
 	/**
 	 * The main plugin object
 	 */
     private final DSTitle plugin;
+    public TitleConfig titlesConfig;
 
-    /** The FileConfiguration containing all titles */
-    private FileConfiguration titleConfig = null;
-    /** The File which contains the titleConfig */
-    private File titleConfigFile = null;
-
-    /** Buffer containing prefixes */
-    private HashMap<String,Title> prefixes = new HashMap<>();
-    /** Buffer containing suffixes */
-    private HashMap<String,Title> suffixes = new HashMap<>();
-    /** Buffer containing who has which prefix (by name) */
-    private HashMap<String,String> playerPrefixes = new HashMap<>();
-    /** Buffer containing who has which suffix (by name) */
-    private HashMap<String,String> playerSuffixes = new HashMap<>();
+    /** Buffer containing who has which prefix (by UUID) */
+    private HashMap<UUID, Prefix> playerPrefixes = new HashMap<>();
+    /** Buffer containing who has which suffix (by UUID) */
+    private HashMap<UUID, Suffix> playerSuffixes = new HashMap<>();
 
     public TitleManager(DSTitle plugin)
     {
         this.plugin = plugin;
-        titleConfigFile = new File(plugin.getDataFolder(), TITLE_CONFIG_FILENAME);
-        titleConfig = YamlConfiguration.loadConfiguration(titleConfigFile);
-        
-        // Set correct keys in the file
-        InputStream defConfigStream = plugin.getResource(TITLE_CONFIG_FILENAME);
-        if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-            titleConfig.setDefaults(defConfig);
-        }
-    	titleConfig.options().copyDefaults(true);
-    	this.saveTitleConfig();
-    	
-        prefixes.clear();
-        suffixes.clear();
-        loadTitles();
+        titlesConfig = new TitleConfig(plugin);
+        playerPrefixes.clear();
+    	playerSuffixes.clear();
+    	for(Player p : Bukkit.getServer().getOnlinePlayers()) {
+    		plugin.getStorage().loadTitlesPlayer(p);
+    	}
     }
 
-    /**
-     * Loads all Title into the Character Storage
-     */
-    private void loadTitles()
-    {
-        Title title;
-        if(titleConfig.contains(Type.SUFFIX.getKey()))
-        {
-            Set<String> titles = titleConfig.getConfigurationSection(Type.SUFFIX.getKey()).getKeys(false);
-            for(String name: titles){
-                title = loadTitle(Type.SUFFIX, name);
-                if (title != null) suffixes.put(name,title);
-            }
-        }
-
-        if(titleConfig.contains(Type.PREFIX.getKey()))
-        {
-            Set<String> titles = titleConfig.getConfigurationSection(Type.PREFIX.getKey()).getKeys(false);
-            for(String name: titles){
-                title = loadTitle(Type.PREFIX, name);
-                if (title != null) prefixes.put(name,title);
-            }
-        }
-    }
-
-    /**
-     * Loads a Title from the TitleConfig
-     * @param type Suffix or Prefix
-     * @param name name of the title to load
-     * @return void
-     */
-    private Title loadTitle(Type type, String name)
-    {
-        String path = type.getKey() + '.' + name;
-
-        if(path==null||path.equals("")){
-            return null;
-        }
-
-        ConfigurationSection titleSection = titleConfig.getConfigurationSection(path);
-
-        if(titleSection!=null)
-        {
-        	// These values could be null !
-            String permission   = titleSection.getString("permission");
-            String description  = titleSection.getString("description");
-            String chatTag      = titleSection.getString("chattag");
-            String headTag      = titleSection.getString("headtag");
-            if (headTag!=null && headTag.length() > 16)
-            {
-                plugin.getLogger().warning("Title  '" + name + "has been disabled!");
-                plugin.getLogger().warning("The headtag cannot be longer than 16 characters, as this would kick every online player from the server");
-                return null;
-            }
-            return new Title(name, type, chatTag, headTag, permission, description);
-        }
-        else
-        {
-            plugin.getLogger().warning(name + "' not good configured and can't be used!");
-            return null;
-        }
+    public void reloadTitleConfigs() {
+    	titlesConfig.reloadTitleConfig();
+    	playerPrefixes.clear();
+    	playerSuffixes.clear();
+    	for(Player p : Bukkit.getServer().getOnlinePlayers()) {
+    		plugin.getStorage().loadTitlesPlayer(p);
+    	}
     }
 
     /**
@@ -133,15 +55,37 @@ public class TitleManager {
      * @param target the player
      * @return Title or null if the player has no prefix
      */
-    public Title getPlayerPrefix(OfflinePlayer target)
-    {
-        if(playerPrefixes.containsKey(target.getName())){
-            String title = playerPrefixes.get(target.getName());
-            return prefixes.get(title);
-        }
-        else{
-            return null;
-        }
+    public Prefix getPlayerPrefix(OfflinePlayer target)
+    {	
+    	if(target!=null){
+    		UUID player = target.getUniqueId();
+    		if(playerPrefixes.containsKey(player)){
+                return playerPrefixes.get(player);
+            }          
+    	}
+        return null;
+    }
+    
+    /**
+     * Get the Prefix a player has set currently
+     * @param target the player
+     * @return Title or null if the player has no prefix
+     */
+    public String getPrefixChatTag(OfflinePlayer target){
+    	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
+	    	String chatTag;
+	    	if(target!=null){
+	    		if(getPlayerPrefix(target)==null) {
+	    			chatTag = " ";
+	    		}
+	    		if(getPlayerPrefix(target).chatTag!=null){
+	    			chatTag = getPlayerPrefix(target).chatTag;
+	    			return chatTag;
+	    		}    		
+	    	}    	
+	    	return " ";
+    	}
+    	return "ChatTags are Disabled";
     }
 
     /**
@@ -151,13 +95,70 @@ public class TitleManager {
      */
     public Title getPlayerSuffix(OfflinePlayer target)
     {
-        if(playerSuffixes.containsKey(target.getName())){
-            String title = playerSuffixes.get(target.getName());
-            return suffixes.get(title);
-        }
-        else{
-            return null;
-        }
+    	if(target!=null){
+    		UUID player = target.getUniqueId();
+    		if(playerSuffixes.containsKey(player)){
+                return playerSuffixes.get(player);
+            }
+    	}
+        return null;
+    }
+    
+    /**
+     * Get the Suffix a player has set currently
+     * @param target the player
+     * @return Title or null if the player has no suffix
+     */
+
+    public String getSuffixChatTag(OfflinePlayer target){
+    	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
+	    	String chatTag;
+	    	if(target!=null){
+	    		if(getPlayerSuffix(target)==null) {
+	    			chatTag = " ";
+	    		}
+	    		if(getPlayerSuffix(target).chatTag!=null){
+	    			chatTag = getPlayerSuffix(target).chatTag;
+	    			return chatTag;
+	    		}    		
+	    	}    	
+	    	return " ";
+    	}
+    	return "ChatTags are Disabled";
+    }
+    
+    public String getPrefixSymbol(OfflinePlayer target) {
+    	if(plugin.placeHolders){
+	    	String symbol;
+	    	if(target!=null){
+	    		if(getPlayerPrefix(target)==null) {
+	    			symbol = null;
+	    		}
+	    		if(getPlayerPrefix(target).symbol!=null){
+	    			symbol = getPlayerPrefix(target).symbol;
+	    			return symbol;
+	    		}    		
+	    	}    	
+	    	return null;
+    	}
+    	return "Symbols are Disabled";
+    }
+    
+    public String getSuffixSymbol(OfflinePlayer target) {
+    	if(plugin.placeHolders){
+	    	String symbol;
+	    	if(target!=null){
+	    		if(getPlayerSuffix(target)==null) {
+	    			symbol = null;
+	    		}
+	    		if(getPlayerSuffix(target).symbol!=null){
+	    			symbol = getPlayerSuffix(target).symbol;
+	    			return symbol;
+	    		}    		
+	    	}    	
+	    	return null;
+    	}
+    	return "Symbols are Disabled";
     }
 
     /**
@@ -165,26 +166,22 @@ public class TitleManager {
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerPrefix(Title title,OfflinePlayer target)
+    @SuppressWarnings("deprecation")
+	public void setPlayerPrefix(Prefix title, OfflinePlayer target)
     {
         if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
-            plugin.getTeamManager().getTeam(title, getPlayerSuffix(target)).addPlayer(target);
+            plugin.getTeamManager().getTeam(title, getPlayerSuffix(target), target.getPlayer()).addPlayer(target);
         }
         if(title==null){
-        	playerPrefixes.remove(target.getName());
+        	playerPrefixes.remove(target.getUniqueId());
         }else{
-        	playerPrefixes.put(target.getName(), title.name);
+        	playerPrefixes.put(target.getUniqueId(), title);
         }
         // Save Changes
         plugin.getStorage().saveTitlesPlayer(target);
     }
 
-    /**
-     * Sets the Players Suffix, Only in Memory
-     * @param title the title to set
-     * @param target The Player
-     */
     public void setPlayerPrefix(String title, OfflinePlayer target)
     {
         setPlayerPrefix(getPrefix(title), target);
@@ -195,16 +192,17 @@ public class TitleManager {
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerSuffix(Title title, OfflinePlayer target)
+    @SuppressWarnings("deprecation")
+	public void setPlayerSuffix(Suffix title, OfflinePlayer target)
     {
     	if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
-            plugin.getTeamManager().getTeam(getPlayerPrefix(target), title).addPlayer(target);
+            plugin.getTeamManager().getTeam(getPlayerPrefix(target), title, target.getPlayer()).addPlayer(target);
         }
         if(title==null){
-        	playerSuffixes.remove(target.getName());
+        	playerSuffixes.remove(target.getUniqueId());
         }else{
-        	playerSuffixes.put(target.getName(), title.name);
+        	playerSuffixes.put(target.getUniqueId(), title);
         }
         // Save Changes
         plugin.getStorage().saveTitlesPlayer(target);
@@ -226,8 +224,10 @@ public class TitleManager {
      */
     public void clearPlayerTitle(OfflinePlayer target)
     {
-        playerPrefixes.remove(target.getName());
-        playerSuffixes.remove(target.getName());
+        playerPrefixes.remove(target.getUniqueId());
+        playerSuffixes.remove(target.getUniqueId());
+        this.setPlayerPrefix(this.titlesConfig.getDefaultPrefix(), target);
+        this.setPlayerSuffix(this.titlesConfig.getDefaultSuffix(), target);
         // Save Changes
         plugin.getStorage().saveTitlesPlayer(target);
     }
@@ -238,7 +238,7 @@ public class TitleManager {
      */
     public SortedSet<Title> getPrefixes()
     {
-        return new TreeSet<Title>(prefixes.values());
+        return new TreeSet<Title>(titlesConfig.getPrefixes());
     }
 
     /**
@@ -247,7 +247,7 @@ public class TitleManager {
      */
     public SortedSet<Title> getSuffixes()
     {
-        return new TreeSet<Title>(suffixes.values());
+        return new TreeSet<Title>(titlesConfig.getSuffixes());
     }
 
     /**
@@ -257,7 +257,11 @@ public class TitleManager {
      */
     public boolean prefixExists(String name)
     {
-        return prefixes.containsKey(name);
+    	for(Prefix pre : titlesConfig.getPrefixes()) {
+    		if(pre.name.equals(name))
+    			return true;
+    	}
+        return false;
     }
 
     /**
@@ -267,7 +271,11 @@ public class TitleManager {
      */
     public boolean suffixExists(String name)
     {
-        return suffixes.containsKey(name);
+    	for(Suffix suf : titlesConfig.getSuffixes()) {
+    		if(suf.name.equals(name))
+    			return true;
+    	}
+        return false;
     }
 
     /**
@@ -276,11 +284,11 @@ public class TitleManager {
      * @return A Title instance
      * @ensure result.name.equals(name)
      */
-    public Title getPrefix(String name){
+    public Prefix getPrefix(String name){
         if(name==null||name.equals(""))
             return null;
 
-        return prefixes.get(name);
+        return titlesConfig.getPrefixbyName(name);
     }
 
     /**
@@ -289,58 +297,13 @@ public class TitleManager {
      * @return A Title instance
      * @ensure result.name.equals(name)
      */
-    public Title getSuffix(String name){
+    public Suffix getSuffix(String name){
         if(name==null||name.equals(""))
             return null;
 
-        return suffixes.get(name);
+        return titlesConfig.getSuffixbyName(name);
     }
 
-    public void saveTitle(Title title)
-    {
-        // Get path
-        String path;
-        if(title.type.equals(Type.PREFIX))
-            path = Type.PREFIX.getKey() + "." + title.name + ".";
-        else
-            path = Type.SUFFIX.getKey() + "." + title.name + ".";
-
-        // Save title
-        titleConfig.set(path + "permission", title.permission);
-        titleConfig.set(path + "description", title.description);
-        titleConfig.set(path + "chattag", title.chatTag);
-        titleConfig.set(path + "headtag", title.headTag);
-
-        saveTitleConfig();
-
-        // Update it in the Hashmaps
-        if(title.type.equals(Type.PREFIX))
-            prefixes.put(title.name,title);
-        else
-            suffixes.put(title.name,title);
-
-        // Reload headtags
-        plugin.getTeamManager().reloadTags();
-    }
-
-    protected void saveTitleConfig() {
-        if (titleConfig == null || titleConfigFile == null) {
-            return;
-        }
-        try {
-            titleConfig.save(titleConfigFile);
-        } catch (IOException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Could not save config to " + titleConfigFile, ex);
-        }
-    }
-
-	public String getDefaultPrefix() {
-		return titleConfig.getString("default_prefix");
-	}
-
-	public String getDefaultSuffix() {
-		return titleConfig.getString("default_prefix");
-	}
 }
 
 
