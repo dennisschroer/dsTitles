@@ -1,7 +1,6 @@
 package denniss17.dsTitle.permissions;
 
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import denniss17.dsTitle.DSTitle;
@@ -9,21 +8,23 @@ import net.milkbowl.vault.permission.Permission;
 
 public class VaultHook{
 	
-	private Plugin plugin;
+	private DSTitle plugin;
 	private Permission permission;
 	
-	public VaultHook(Plugin plugin) {
+	public VaultHook(DSTitle plugin) {
 		this.plugin = plugin;
 	}
 	
-	public void registerVault() {
+	public boolean registerVault() {
 		RegisteredServiceProvider<Permission> provider = null;
-		if(DSTitle.title.getPermissionManager()==null) {
+		if(plugin.getPermissionManager()==null) {
 			provider = 	plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);			
 		}
 		if (provider != null) {
 			this.permission = provider.getProvider();
+			return true;
 		}
+		return false;
 	}
 	
 	/** Add the permission to this player

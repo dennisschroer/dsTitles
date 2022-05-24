@@ -14,6 +14,7 @@ import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
 import denniss17.dsTitle.Placeholders.PlaceholderAPIHook;
+import denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook;
 import denniss17.dsTitle.permissions.PermissionManager;
 
 public class DSTitle extends JavaPlugin{	
@@ -24,26 +25,25 @@ public class DSTitle extends JavaPlugin{
 	
 	private static final int projectID = 51865;
 	public static VersionChecker versionChecker;
-	public static DSTitle title;
 	public boolean placeHolders = false;
+	private DSTitle instance;
 
 	/**
 	 * Enable this plugin
 	 */
 	public void onEnable(){
-		title = this;
+		instance = this;
 		super.onEnable();
 		if(Bukkit.getPluginManager().isPluginEnabled("MVdWPlaceholderAPI"))
 		{
-			if(denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook.dsTitlePrefixHook()&&
-			denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook.dsTitleSuffixHook()){
+			if(new mvdwPlaceholderAPIHook(this).registerPlaceholders()){
 				getLogger().info("dsTitle was successfully registered with mvdwPlaceholderAPI!");
 				placeHolders = true;
 			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
 		{
-			if(new PlaceholderAPIHook(title).register()) {
+			if(new PlaceholderAPIHook(this).register()) {
 				getLogger().info("dsTitle was successfully registered with PlaceholderAPI!");
 				placeHolders = true;
 			}
@@ -84,6 +84,9 @@ public class DSTitle extends JavaPlugin{
 			} catch (SQLException e) {
 				
 			}
+		}
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+			
 		}
 	}
 	
@@ -170,6 +173,10 @@ public class DSTitle extends JavaPlugin{
 	 */
 	public void sendMessage(CommandSender receiver, String message){
 		receiver.sendMessage(ChatStyler.setTotalStyle(message));
+	}
+
+	public DSTitle getInstance() {
+		return instance;
 	}
 	
 	

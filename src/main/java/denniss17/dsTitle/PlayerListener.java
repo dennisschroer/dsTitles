@@ -82,7 +82,7 @@ public class PlayerListener implements Listener {
 			}
 		}
 		
-		return ChatStyler.setTotalStyle(chatFormat);
+		return denniss17.dsTitle.ChatStyler.setTotalStyle(chatFormat);
 	}
     
 	@EventHandler(priority = EventPriority.LOWEST)

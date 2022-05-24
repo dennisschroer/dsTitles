@@ -9,6 +9,7 @@ import denniss17.dsTitle.objects.Title;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
 import java.util.UUID;
@@ -33,11 +34,11 @@ public class SQLTitleStorage extends TitleStorage {
         super(plugin,manager);
         this.plugin = plugin;
         this.driver = DatabaseType.match(plugin.getConfig().getString(("storage.database.driver")));
+        this.username = plugin.getConfig().getString("storage.database.username");
+        this.password = plugin.getConfig().getString("storage.database.password");
         if(this.driver!=null) {
         	if(this.driver.equals(DatabaseType.SQLITE)){
-            	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
-            	this.username = plugin.getConfig().getString("storage.database.username");
-                this.password = plugin.getConfig().getString("storage.database.password");
+            	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");        	
                 try
             	{
                     if (!loadDriver()) {
@@ -63,11 +64,9 @@ public class SQLTitleStorage extends TitleStorage {
                             e1.printStackTrace();
                     }
                     e.printStackTrace();
+                    return;
             	}
             }else{
-            	this.username = plugin.getConfig().getString("storage.database.username");
-                this.password = plugin.getConfig().getString("storage.database.password");
-            	
             	if(plugin.getConfig().getString("storage.database.autoReconnect").equalsIgnoreCase("true"))
             		this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + plugin.getConfig().getString("storage.database.database") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL") + "&autoReconnect=true";
             	else
@@ -77,7 +76,8 @@ public class SQLTitleStorage extends TitleStorage {
                 config.setUsername(this.username);
                 config.setPassword(this.password);
                 config.setMaximumPoolSize(10);
-                config.setMaxLifetime(28740000);
+                config.setMaxLifetime(360000);
+                config.setValidationTimeout(60000);
                 config.setDriverClassName(this.driver.driver);
                 config.addDataSourceProperty("cachePrepStmts", "true");
                 config.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -102,8 +102,11 @@ public class SQLTitleStorage extends TitleStorage {
                             e1.printStackTrace();
                     }
                     e.printStackTrace();
+                    return;
             	}
-            }  	
+            }
+        	//Start "keepAlive" task to keep connection active
+        	Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> keepAlive(), 20*60*60*7, 20*60*60*7);
         }else {
         	plugin.getLogger().info("Database needs a type set. Possible values: H2, MYSQL, POSTGRE, SQLITE");
         }      
@@ -134,16 +137,35 @@ public class SQLTitleStorage extends TitleStorage {
     }
 
     private Connection getConnection() throws SQLException{
-
-        if (conn == null || conn.isClosed()) {
-        	if(dataSource instanceof HikariDataSource) {
-                this.conn = dataSource.getConnection();
+    	if (conn != null)
+    	      try {
+    	        conn.createStatement().execute("SELECT 1;");
+    	      } catch (SQLException sqlException) {
+    	        if (sqlException.getSQLState().equals("08S01"))
+    	          try {
+    	            conn.close();
+    	          } catch (SQLException sQLException) {} 
+    	      }
+        if (conn == null || conn.isClosed() || !conn.isValid(60)) { //maybe change to lower than 60, like 4 seconds?
+        	if(dataSource  instanceof HikariDataSource) {
+                if((username.isEmpty() && password.isEmpty()))
+                	conn = dataSource.getConnection();
+                else
+                	conn = dataSource.getConnection(username, password);
         	}else {
         		conn = (username.isEmpty() && password.isEmpty()) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, username, password);
         	}           
         }
         // The connection could be null here (!)
         return conn;
+    }
+    
+    private void keepAlive() {
+        try {
+            conn.isValid(0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }              
     }
 
     @Override
@@ -166,6 +188,7 @@ public class SQLTitleStorage extends TitleStorage {
         }
         catch (SQLException ex)
         {
+        	System.out.println("[dsTitles] ERROR");
             plugin.getLogger().log(Level.SEVERE,"Could not load titles of player " + target.getName());
             plugin.getLogger().log(Level.SEVERE,"Reason: " + ex.getMessage());
         }

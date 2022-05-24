@@ -10,14 +10,27 @@ import be.maximvdw.placeholderapi.PlaceholderReplacer;
 import denniss17.dsTitle.DSTitle;
 
 public class mvdwPlaceholderAPIHook{
-	public static boolean dsTitlePrefixHook(){
+	
+	private DSTitle plugin;
+	
+	public mvdwPlaceholderAPIHook(DSTitle plugin) {
+		this.plugin = plugin;
+	}
+	
+	public boolean registerPlaceholders() {
+		if(dsTitlePrefixHook() && dsTitleSuffixHook() && dsTitleSuffixSymbolHook() && dsTitlePrefixSymbolHook())
+			return true;
+		return false;
+	}
+	
+	private boolean dsTitlePrefixHook(){
 		PlaceholderReplacer dsTitlePrefix = new PlaceholderReplacer (){
 			@Override
 			public String onPlaceholderReplace(PlaceholderReplaceEvent event) {
 					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						if(DSTitle.title!=null){
-							TitleManager man = DSTitle.title.getTitleManager();
+						if(plugin!=null){
+							TitleManager man = plugin.getTitleManager();
 			                if (man != null)
 			                {
 			                	String prefixTag;
@@ -32,18 +45,18 @@ public class mvdwPlaceholderAPIHook{
 					return "";		
 				}
 		};
-		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_prefix", dsTitlePrefix);
+		return PlaceholderAPI.registerPlaceholder(plugin, "dstitle_prefix", dsTitlePrefix);
 	}
 	
-	public static boolean dsTitleSuffixHook(){
+	private boolean dsTitleSuffixHook(){
 		PlaceholderReplacer dsTitleSuffix = new PlaceholderReplacer (){
 			@Override
 			public String onPlaceholderReplace (
 				PlaceholderReplaceEvent event) {
 					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						if(DSTitle.title!=null){
-							TitleManager man = DSTitle.title.getTitleManager();
+						if(plugin!=null){
+							TitleManager man = plugin.getTitleManager();
 		                    if (man != null)
 		                    {
 		                    	String suffixTag;
@@ -58,18 +71,18 @@ public class mvdwPlaceholderAPIHook{
 					return "";
 				}
 		};
-		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_suffix", dsTitleSuffix); 
+		return PlaceholderAPI.registerPlaceholder(plugin, "dstitle_suffix", dsTitleSuffix); 
 	}
 	
-	public static boolean dsTitleSuffixSymbolHook(){
+	private boolean dsTitleSuffixSymbolHook(){
 		PlaceholderReplacer dsTitleSuffix = new PlaceholderReplacer (){
 			@Override
 			public String onPlaceholderReplace (
 				PlaceholderReplaceEvent event) {
 					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						if(DSTitle.title!=null){
-							TitleManager man = DSTitle.title.getTitleManager();
+						if(plugin!=null){
+							TitleManager man = plugin.getTitleManager();
 		                    if (man != null)
 		                    {
 		                    	String symbol;
@@ -84,18 +97,18 @@ public class mvdwPlaceholderAPIHook{
 					return "";
 				}
 		};
-		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_suffix_symbol", dsTitleSuffix); 
+		return PlaceholderAPI.registerPlaceholder(plugin, "dstitle_suffix_symbol", dsTitleSuffix); 
 	}
 	
-	public static boolean dsTitlePrefixSymbolHook(){
+	private boolean dsTitlePrefixSymbolHook(){
 		PlaceholderReplacer dsTitleSuffix = new PlaceholderReplacer (){
 			@Override
 			public String onPlaceholderReplace (
 				PlaceholderReplaceEvent event) {
 					if(event.getPlayer()!=null){
 						Player p = event.getPlayer();
-						if(DSTitle.title!=null){
-							TitleManager man = DSTitle.title.getTitleManager();
+						if(plugin!=null){
+							TitleManager man = plugin.getTitleManager();
 		                    if (man != null)
 		                    {
 		                    	String symbol;
@@ -110,6 +123,6 @@ public class mvdwPlaceholderAPIHook{
 					return "";
 				}
 		};
-		return PlaceholderAPI.registerPlaceholder(DSTitle.title, "dstitle_prefix_symbol", dsTitleSuffix); 
+		return PlaceholderAPI.registerPlaceholder(plugin, "dstitle_prefix_symbol", dsTitleSuffix); 
 	}
 }

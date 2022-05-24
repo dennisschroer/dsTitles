@@ -1,7 +1,6 @@
 package denniss17.dsTitle.permissions;
 
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import denniss17.dsTitle.DSTitle;
@@ -11,21 +10,23 @@ import net.luckperms.api.node.Node;
 
 public class LuckPermsHook{
 	
-	private Plugin plugin;
+	private DSTitle plugin;
 	private LuckPerms api;
 	
-	public LuckPermsHook(Plugin plugin) {
+	public LuckPermsHook(DSTitle plugin) {
 		this.plugin = plugin;
 	}
 	
-	public void registerLuckPerms() {
+	public boolean registerLuckPerms() {
 		RegisteredServiceProvider<LuckPerms> provider = null;
-		if(DSTitle.title.getPermissionManager()==null) {
+		if(plugin.getPermissionManager()==null) {
 			provider = this.plugin.getServer().getServicesManager().getRegistration(LuckPerms.class);
 	    }		
 		if (provider != null) {
-		    api = provider.getProvider();		    
+		    api = provider.getProvider();
+		    return true;
 		}
+		return false;
 	}
 	
 	/** Add the permission to this player
